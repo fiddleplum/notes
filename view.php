@@ -11,7 +11,7 @@ else
 	$note = "";
 }
 
-print_header("Notes 2");
+print_header("Notes");
 
 if($note == "")
 {

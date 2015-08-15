@@ -14,7 +14,7 @@ if($note == "")
 }
 $text = @file_get_contents("data/$note.html");
 
-print_header("Notes 2");
+print_header("Notes");
 
 print("
 	<script src='edit.js'></script>
@@ -31,6 +31,8 @@ print("
 	<button onclick='setBlockTypeAtCursor(\"p\")'>p</button>
 	<button onclick='setBlockTypeAtCursor(\"p\", [\"quote\"])'>Quote</button>
 	<button onclick='setBlockTypeAtCursor(\"p\", [\"code\"])'>Code</button>
+	<button onclick='window.location.href = \"view.php?ps=\" + password + \"&n=\" + note;'><img src='view24.png' /></button>
+	<button onclick='window.location.href = \"index.php?ps=\" + password;'><img src='list24.png' /></button>
 	</div>
 	<div id='content' contenteditable='true'>
 $text

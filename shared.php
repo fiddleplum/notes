@@ -38,14 +38,16 @@ function check_password()
 	{
 		print_header("Password");
 		print("
-			<h1>Please enter your password</h1>
-			<div>
-			<form action='.' method='get'>
-			<input id='focus' type='password' name='ps' value='' />
-			</form>
+			<div style='text-align: center;'>
+				<h1>Please enter your password</h1>
+				<div>
+					<form action='.' method='get'>
+						<input id='focus' type='password' name='ps' value='' />
+					</form>
+				</div>
 			</div>
 			<script type='text/javascript'>
-			document.getElementById('focus').focus();
+				document.getElementById('focus').focus();
 			</script>
 			");
 		print_footer();

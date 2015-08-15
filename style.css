@@ -1,9 +1,9 @@
 * { box-sizing: border-box; }
-body { margin: 0px; background-color: #2f2e2c; color: #ece4cd; font-family: sans-serif; font-size: 16px;}
+body { margin: 0px; background-color: #2f2e2c; color: #ece4cd; font-family: sans-serif; font-size: 24px;}
 h1, h2, h3, h4, h5, p, li { font-weight: normal; }
 
 input[type=text], input[type=submit] { }
-input, button { background: #ece4cd; color: #4e4d49; height: 2em; font-size: 0.5em; padding: 0 .25em; border: 0px; border-radius: 2px; }
+input, button { background: #ece4cd; color: #4e4d49; height: 24px; font-size: 16px; line-height: 24px; border: 0px; border-radius: 2px; vertical-align: top; }
 
 #list { width: 320px; min-height: 100vh; margin: auto; padding: 1em; background: #4e4d49; border-left: 2px solid #666155; border-right: 2px solid #666155; }
 #list .new_item input[type=text] { float: left; }
@@ -11,7 +11,7 @@ input, button { background: #ece4cd; color: #4e4d49; height: 2em; font-size: 0.5
 #list .item, #list .new_item { margin-bottom: .25em; margin-top: .25em; overflow: auto; }
 #list .item .view_button { float: left; }
 #list .item .view_button input[type=submit] { display: inline-block; height: 1.25em; background: none; color: inherit; }
-#list .item .delete_button, #list .item .edit_button { float: right; }
+#list .item .delete_button, #list .item .edit_button { float: right; margin-left: .25em; }
 #list input[type=image] { width: auto; height: 1.25em; }
 @media (max-width: 319px)
 {
@@ -19,8 +19,8 @@ input, button { background: #ece4cd; color: #4e4d49; height: 2em; font-size: 0.5
 }
 
 #edit { max-width: 100%; }
-#edit #buttons { position: fixed; top: 0px; width: 100vw; background: #2f2e2c; height: 1em; line-height: 0em; }
-#edit #buttons button { margin-right: .25em; }
+#edit #buttons { position: fixed; top: 0px; width: 100vw; height: 24px; background: #2f2e2c; vertical-align: top; font-size: 0; line-height: 16px; }
+#edit #buttons button { margin-right: .25em; padding: 0 .25em; }
 #edit #buttons button:active { background: #666155; }
 
 #content { background: #4e4d49; margin-top: 1em; min-height: calc(100vh - 1em); color: #ece4cd; max-width: 100%; overflow-y: auto; }

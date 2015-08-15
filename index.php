@@ -5,7 +5,7 @@ require('shared.php');
 $password = check_password();
 $note = get_note();
 
-print_header("Notes 2");
+print_header("Notes");
 
 $notes = array();
 $dh = opendir("data");
@@ -28,6 +28,7 @@ print("
 	<div class='new_item'>
 	<form action='save.php' method='get'>
 	<input type='hidden' name='ps' value='$password' />
+	<input type='hidden' name='r' value='' />
 	<input type='text' name='n' />
 	<input type='submit' value='New' style='float: right; display: inline;' />
 	</form>
@@ -43,15 +44,15 @@ foreach($notes as $note)
 		<input type='hidden' name='n' value='$escaped_note' />
 		<input type='submit' value='$escaped_note' />
 		</form>
-		<form class='delete_button' action='delete.php' method='get'>
-		<input type='hidden' name='ps' value='$password' />
-		<input type='hidden' name='n' value='$escaped_note' />
-		<input type='image' src='delete24.png' onclick='return confirm(\"Are you sure you want to delete $escaped_note?\");' />
-		</form>
 		<form class='edit_button' action='edit.php' method='get'>
 		<input type='hidden' name='ps' value='$password' />
 		<input type='hidden' name='n' value='$escaped_note' />
 		<input type='image' src='edit24.png' />
+		</form>
+		<form class='delete_button' action='delete.php' method='get'>
+		<input type='hidden' name='ps' value='$password' />
+		<input type='hidden' name='n' value='$escaped_note' />
+		<input type='image' src='delete24.png' onclick='return confirm(\"Are you sure you want to delete $escaped_note?\");' />
 		</form>
 		</div>
 		");
