@@ -18,25 +18,19 @@ print_header("Notes");
 
 print("
 	<script src='edit.js'></script>
-	<script>
-		var password = '$password';
-		var note = '" . str_replace("'", "\'", $note) . "';
-	</script>
-	<div id='edit'>
-	<div id='buttons'>
-	<button onclick='save()'>Save</button>
-	<button onclick='setBlockTypeAtCursor(\"h1\")'>h1</button>
-	<button onclick='setBlockTypeAtCursor(\"h2\")'>h2</button>
-	<button onclick='setBlockTypeAtCursor(\"h3\")'>h3</button>
-	<button onclick='setBlockTypeAtCursor(\"p\")'>p</button>
-	<button onclick='setBlockTypeAtCursor(\"p\", [\"quote\"])'>Quote</button>
-	<button onclick='setBlockTypeAtCursor(\"p\", [\"code\"])'>Code</button>
-	<button onclick='window.location.href = \"view.php?ps=\" + password + \"&n=\" + note;'><img src='view24.png' /></button>
-	<button onclick='window.location.href = \"index.php?ps=\" + password;'><img src='list24.png' /></button>
+	<div id='header'>
+	<button class='left' onclick='save()'>Save</button>
+	<button class='left' onclick='setBlockTypeAtCursor(\"h1\")'>h1</button>
+	<button class='left' onclick='setBlockTypeAtCursor(\"h2\")'>h2</button>
+	<button class='left' onclick='setBlockTypeAtCursor(\"h3\")'>h3</button>
+	<button class='left' onclick='setBlockTypeAtCursor(\"p\")'>p</button>
+	<button class='left' onclick='setBlockTypeAtCursor(\"p\", [\"quote\"])'>&ldquo;</button>
+	<button class='left' onclick='setBlockTypeAtCursor(\"p\", [\"code\"])'>code</button>
+	<button class='right' onclick='window.location.href = \"index.php?ps=\" + password;'><img src='list24.png' /></button>
+	<button class='right' onclick='window.location.href = \"view.php?ps=\" + password + \"&n=\" + note;'><img src='view24.png' /></button>
 	</div>
 	<div id='content' contenteditable='true'>
 $text
-	</div>
 	</div>
 	");
 

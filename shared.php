@@ -2,23 +2,41 @@
 
 function print_header($title)
 {
-	print("<!doctype html><meta charset='UTF-8'>
-<html>
-	<head>
-		<title>$title</title>
-		<meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=0'>
-		<link rel='stylesheet' type='text/css' href='style.css'>
-		<!--<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>-->
-		<script src='jquery.js'></script>
-	</head>
-	<body>
-");
+	print("
+		<!doctype html><meta charset='UTF-8'>
+		<html>
+			<head>
+				<title>$title</title>
+				<meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=0'>
+				<link rel='stylesheet' type='text/css' href='style.css'>
+				<!--<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>-->
+				<script src='jquery.js'></script>
+			</head>
+			<script>
+				var GET = {};
+
+				document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function ()
+				{
+					function decode(s)
+					{
+						return decodeURIComponent(s.split(\"+\").join(\" \"));
+					}
+
+					GET[decode(arguments[1])] = decode(arguments[2]);
+				});
+				var password = GET['ps'];
+				var note = GET['n'];
+			</script>
+			<body>
+		");
 }
 
 function print_footer()
 {
-	print("	</body>
-</html>");
+	print("
+			</body>
+		</html>
+		");
 }
 
 function check_password()

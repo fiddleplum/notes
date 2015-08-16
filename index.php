@@ -7,7 +7,7 @@ $note = get_note();
 
 print_header("Notes");
 
-$notes = array();
+$note_files = array();
 $dh = opendir("data");
 if($dh)
 {
@@ -17,46 +17,36 @@ if($dh)
 		{
 			continue;
 		}
-		$notes[] = $file;
+		$note_files[] = $file;
 	}
 	closedir($dh);
 }
-sort($notes);
+sort($note_files);
 
 print("
-	<div id='list'>
-	<div class='new_item'>
-	<form action='save.php' method='get'>
-	<input type='hidden' name='ps' value='$password' />
-	<input type='hidden' name='r' value='' />
-	<input type='text' name='n' />
-	<input type='submit' value='New' style='float: right; display: inline;' />
-	</form>
+	<div id='header'>
+		<form action='save.php' method='get'>
+			<input type='hidden' name='ps' value='$password' />
+			<input type='hidden' name='r' />
+			<input class='left' type='text' name='n' />
+			<input class='right' type='submit' value='New' />
+		</form>
 	</div>
+	<div id='content'>
 	");
-foreach($notes as $note)
+foreach($note_files as $note_file)
 {
-	$escaped_note = substr(str_replace("'", "&#39;", $note), 0, -5);
+	$note = substr($note_file, 0, -5);
+	$escaped_note = str_replace("'", "&#39;", $note);
 	print("
 		<div class='item'>
-		<form class='view_button' action='view.php' method='get'>
-		<input type='hidden' name='ps' value='$password' />
-		<input type='hidden' name='n' value='$escaped_note' />
-		<input type='submit' value='$escaped_note' />
-		</form>
-		<form class='edit_button' action='edit.php' method='get'>
-		<input type='hidden' name='ps' value='$password' />
-		<input type='hidden' name='n' value='$escaped_note' />
-		<input type='image' src='edit24.png' />
-		</form>
-		<form class='delete_button' action='delete.php' method='get'>
-		<input type='hidden' name='ps' value='$password' />
-		<input type='hidden' name='n' value='$escaped_note' />
-		<input type='image' src='delete24.png' onclick='return confirm(\"Are you sure you want to delete $escaped_note?\");' />
-		</form>
+			<button class='left' onclick='window.location.href = \"view.php?ps=$password&n=$escaped_note\";'>$note</button>
+			<button class='img right' onclick='window.location.href = \"edit.php?ps=$password&n=$escaped_note\";'><img src='edit24.png' /></button>
+			<button class='img right' onclick='if(confirm(\"Are you sure you want to delete $escaped_note?\")) window.location.href = \"delete.php?ps=$password&n=$escaped_note\";'><img src='delete24.png' /></button>
 		</div>
 		");
 }
+
 print("
 	</div>
 	");
