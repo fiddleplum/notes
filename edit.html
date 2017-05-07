@@ -1,0 +1,78 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="markdown.js"></script>
+		<script>
+			function getQueryParam(name) {
+				name = name.replace(/[\[\]]/g, "\\$&");
+				var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(window.location.href);
+				if (!results) {
+					return null;
+				}
+				if (!results[2]) {
+					return '';
+				}
+				return decodeURIComponent(results[2].replace(/\+/g, " "));
+			}
+
+			function getNote(name) {
+				$.ajax({
+					url: "notes/" + name + ".md",
+					context: document.body,
+					success: function(data) {
+						$("#markdown textarea").html(data);
+						updateHtml();
+					},
+					error: function() {
+						showMessage("Could not load note \"" + name + "\".");
+					}
+				});
+			}
+
+			function updateHtml() {
+				$("#html").html(markdownToHtml($("#markdown textarea")[0].value));
+			}
+
+			function showMessage(message) {
+				var div = $("#message");
+				div.html(message);
+				div.fadeIn(250);
+			}
+
+			function start () {
+				var name = getQueryParam("n");
+				if(name === null) {
+					showMessage("No n query param found.");
+					return;
+				}
+				getNote(name);
+			}
+
+			window.addEventListener("load", start, false);
+		</script>
+		<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Oxygen+Mono" rel="stylesheet">
+		<style>
+			* { box-sizing: border-box; font-size: 16px; font-family: "Lora", serif; }
+			body { background-color: #4e4d49; margin: 0; padding: 0; padding: 8px; }
+			#message, #markdown, #html { padding: 8px; border-radius: 4px; line-height: 16px; }
+			#markdown { width: calc(50% - 4px); height: calc(100vh - 56px); float: left; color: #191815; background: #ece4cd; }
+			#markdown textarea { width: 100%; height: 100%; resize: none; border: 0; background: transparent; color: inherit; }
+			#markdown textarea:focus { outline: 0; }
+			#html { width: calc(50% - 4px); height: calc(100vh - 56px); float: right; color: #191815; background: #ece4cd; overflow-y: auto; }
+			#message { display: none; margin-top: 8px; color: #f8f2e1; background: #666155; }
+			#clear { clear: both; }
+		</style>
+	</head>
+	<body>
+		<div id="markdown">
+			<form>
+				<textarea placeholder="Enter markdown here." oninput="updateHtml()";></textarea>
+			</form>
+		</div>
+		<div id="html"></div>
+		<div id="clear"></div>
+		<div id="message"></div>
+	</body>
+</html>
