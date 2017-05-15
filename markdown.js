@@ -1,23 +1,25 @@
 function markdownToHtml (text) {
 	var lines = text.split('\n');
-	lines.push(".");
+	lines.push("");
 	var html = "";
 	for (var lineNum = 0; lineNum < lines.length; lineNum++) {
 		var line = lines[lineNum];
 
 		var newLine = "";
 
+		getListTypeAndLevel(line);
+
+		html += closeLists(line);
+
 		// Skip blank line.
 		if (line.length == 0) {
 			continue;
 		}
 
-		// List tracking.
-		getListTypeAndLevel(line);
-		html += closeLists(line);
 		html += openLists(line);
 
 		newLine += parseHeadings(line);
+
 		newLine += parseListItem(line);
 
 		// No line was parsed, so it's just a paragraph.
@@ -118,53 +120,60 @@ function getListTypeAndLevel (line) {
 		nextListLevel = 3;
 		nextListType = "*";
 	}
+	else {
+		nextListLevel = 0;
+		nextListType = "";
+	}
 }
 
 function closeLists (line) {
 	var newLine = "";
-	while (listStack.length > nextListLevel) {
-		var top = listStack.pop();
-		if (listStack.length > 0) {
-			newLine += "</li>\n";
+
+	console.log(listStack.length + " " + nextListLevel);
+
+	if (listStack.length > 0) {
+		// Close any old list item.
+		if (nextListLevel <= listStack.length) {
+			newLine += "</li>";
 		}
-		newLine += Array(listStack.length + 1).join("  ");
-		if (top == "*") {
-			newLine += "</ul>";
-		} else if (top == "1") {
-			newLine += "</ol>";
-		}
-		if (listStack.length == 0) {
-			newLine += "\n";
-		}
-	}
-	if (listStack.length > 0 && listStack.length == nextListLevel) {
-		if (listStack[listStack.length - 1] != nextListType) {
-			newLine += "</li>\n";
-			newLine += Array(listStack.length).join("  ");
-			if (listStack[listStack.length - 1] == "*") {
+		newLine += "\n";
+
+		// Close off deeper level lists.
+		while (listStack.length > nextListLevel) {
+			var top = listStack.pop();
+			newLine += Array(listStack.length + 1).join("  ");
+			if (top == "*") {
 				newLine += "</ul>";
-			} else if (listStack[listStack.length - 1] == "1") {
+			} else if (top == "1") {
 				newLine += "</ol>";
 			}
-			listStack.pop();
-			if (listStack.length == 0) {
-				newLine += "\n";
+			if (listStack.length > 0) {
+				newLine += "</li>";
+			}
+			newLine += "\n";
+		}
+
+		// Close same level list of a different type.
+		if (listStack.length == nextListLevel && listStack[listStack.length - 1] != nextListType) {
+			var top = listStack.pop();
+			newLine += Array(listStack.length + 1).join("  ");
+			if (top == "*") {
+				newLine += "</ul>\n";
+			} else if (top == "1") {
+				newLine += "</ol>\n";
 			}
 		}
-		else {
-			newLine += "</li>\n";
-		}
 	}
+
 	return newLine;
 }
 
 function openLists (line) {
 	var newLine = "";
 	while (listStack.length < nextListLevel) {
-		if (listStack.length > 0) {
-			newLine += "\n";
+		if (newLine == "") {
+			newLine += Array(listStack.length + 1).join("  ");
 		}
-		newLine += Array(listStack.length + 1).join("  ");
 		if (nextListType == "*") {
 			newLine += "<ul>\n";
 		}
