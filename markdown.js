@@ -1,9 +1,30 @@
-function markdownToHtml (text) {
+/*
+
+Blocks:
+"# ", "## ", "### " are headers
+"* " is unordered list (every two spaces nest)
+"1 " is ordered list (every two spaces nest)
+"> " is a quote
+"! " is code
+everything else is paragraph
+
+Inline:
+"**bolded**" is bolded text
+"*italics*" is italics text
+"[link text|link url]" is link
+
+*/
+
+var lineParsed = false;
+
+function textToHtml (text) {
 	var lines = text.split('\n');
 	lines.push("");
 	var html = "";
 	for (var lineNum = 0; lineNum < lines.length; lineNum++) {
 		var line = lines[lineNum];
+
+		lineParsed = false;
 
 		var newLine = "";
 
@@ -11,20 +32,24 @@ function markdownToHtml (text) {
 
 		html += closeLists(line);
 
-		// Skip blank line.
-		if (line.length == 0) {
-			continue;
-		}
+		html += closeQuoteAndCode(line);
 
 		html += openLists(line);
 
 		newLine += parseHeadings(line);
 
+		newLine += parseQuoteAndCode(line);
+
 		newLine += parseListItem(line);
 
 		// No line was parsed, so it's just a paragraph.
-		if (newLine == "") {
+		if (!lineParsed && line.length > 0) {
 			newLine += "<p>" + line + "</p>\n";
+		}
+
+		if (code) { // it's like a pre, so don't inline process.
+			html += newLine;
+			continue;
 		}
 
 		// Inline markdown.
@@ -34,7 +59,7 @@ function markdownToHtml (text) {
 		for (var charNum = 0; charNum < newLine.length; charNum++) {
 			var char = newLine[charNum];
 			var nextChar = (charNum + 1 < newLine.length) ? newLine[charNum + 1] : "";
-			if ((char == "*" && nextChar == "*") || (char == "_" && nextChar == "_")) {
+			if (char == "*" && nextChar == "*") {
 				if (!bold) {
 					newLine2 += "<b>";
 				}
@@ -44,7 +69,7 @@ function markdownToHtml (text) {
 				bold = !bold;
 				charNum++;
 			}
-			else if(char == "*" || char == "_") {
+			else if (char == "*") {
 				if (!italics) {
 					newLine2 += "<i>";
 				}
@@ -52,6 +77,14 @@ function markdownToHtml (text) {
 					newLine2 += "</i>";
 				}
 				italics = !italics;
+			}
+			else if (char == "[") {
+				var charNum2 = newLine.indexOf("|", charNum);
+				var linkText = newLine.substr(charNum + 1, charNum2 - (charNum + 1));
+				var charNum3 = newLine.indexOf("]", charNum2);
+				var linkUrl = newLine.substr(charNum2 + 1, charNum3 - (charNum2 + 1));
+				newLine2 += "<a href=\"" + linkUrl + "\">" + linkText + "</a>";
+				charNum = charNum3;
 			}
 			else {
 				newLine2 += char;
@@ -68,22 +101,16 @@ function markdownToHtml (text) {
 
 function parseHeadings (line) {
 	if (line.startsWith("# ")) {
+		lineParsed = true;
 		return "<h1>" + line.substr(2) + "</h1>\n";
 	}
 	else if (line.startsWith("## ")) {
+		lineParsed = true;
 		return "<h2>" + line.substr(3) + "</h2>\n";
 	}
 	else if (line.startsWith("### ")) {
+		lineParsed = true;
 		return "<h3>" + line.substr(4) + "</h3>\n";
-	}
-	else if (line.startsWith("#### ")) {
-		return "<h4>" + line.substr(5) + "</h4>\n";
-	}
-	else if (line.startsWith("##### ")) {
-		return "<h5>" + line.substr(6) + "</h5>\n";
-	}
-	else if (line.startsWith("###### ")) {
-		return "<h6>" + line.substr(7) + "</h6>\n";
 	}
 	else {
 		return "";
@@ -128,8 +155,6 @@ function getListTypeAndLevel (line) {
 
 function closeLists (line) {
 	var newLine = "";
-
-	console.log(listStack.length + " " + nextListLevel);
 
 	if (listStack.length > 0) {
 		// Close any old list item.
@@ -191,7 +216,50 @@ function openLists (line) {
 
 function parseListItem (line) {
 	if (nextListType != "") {
+		lineParsed = true;
 		return Array(listStack.length + 1).join("  ") + "<li>" + line.substr(nextListLevel * 2);
 	}
 	return "";
+}
+
+// QUOTES
+
+var quote = false;
+var code = false;
+function closeQuoteAndCode (line) {
+
+	var inCode = line.startsWith("! ");
+	var inQuote = line.startsWith("> ");
+	if (code && !inCode) {
+		code = false;
+		return "</code>\n";
+	}
+	if (quote && !inQuote) {
+		quote = false;
+		return "\n</quote>\n";
+	}
+	return "";
+}
+
+function parseQuoteAndCode (line) {
+	var inCode = line.startsWith("! ");
+	var inQuote = line.startsWith("> ");
+	var newLine = "";
+	if (inCode) {
+		lineParsed = true;
+		if (!code) {
+			newLine += "<code>\n";
+			code = true;
+		}
+		newLine += line.substr(2) + "\n";
+	}
+	else if (inQuote) {
+		lineParsed = true;
+		if (!quote) {
+			newLine += "<quote>\n"
+			quote = true;
+		}
+		newLine += line.substr(2);
+	}
+	return newLine;
 }
