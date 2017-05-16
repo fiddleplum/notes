@@ -1,10 +1,10 @@
 /*
 
-Blocks:
+Blocks (at beginning of a line):
 "# ", "## ", "### " are headers
-"* " is unordered list (every two spaces nest)
-"1 " is ordered list (every two spaces nest)
-"> " is a quote
+"* ", "  * ", "    * " are unordered lists
+"1 ", "  1 ", "    1 " are ordered lists
+"` " is a quote
 "! " is code
 everything else is paragraph
 
@@ -27,6 +27,8 @@ function textToHtml (text) {
 		lineParsed = false;
 
 		var newLine = "";
+
+		line = line.replace("<", "&lt;").replace(">", "&gt;");
 
 		getListTypeAndLevel(line);
 
@@ -227,9 +229,8 @@ function parseListItem (line) {
 var quote = false;
 var code = false;
 function closeQuoteAndCode (line) {
-
 	var inCode = line.startsWith("! ");
-	var inQuote = line.startsWith("> ");
+	var inQuote = line.startsWith("` ");
 	if (code && !inCode) {
 		code = false;
 		return "</code>\n";
@@ -243,12 +244,12 @@ function closeQuoteAndCode (line) {
 
 function parseQuoteAndCode (line) {
 	var inCode = line.startsWith("! ");
-	var inQuote = line.startsWith("> ");
+	var inQuote = line.startsWith("` ");
 	var newLine = "";
 	if (inCode) {
 		lineParsed = true;
 		if (!code) {
-			newLine += "<code>\n";
+			newLine += "<code>";
 			code = true;
 		}
 		newLine += line.substr(2) + "\n";
