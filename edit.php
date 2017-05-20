@@ -1,3 +1,27 @@
+<?php
+
+require('shared.php');
+
+check_password();
+get_note();
+
+print_header("Notes");
+
+?>
+
+		<div id="markdown">
+			<form>
+				<textarea placeholder="Enter markdown here." oninput="updateHtml()";></textarea>
+			</form>
+		</div>
+		<div id="html"></div>
+
+<?php
+
+print_fooder();
+
+?>
+<!--
 <html>
 	<head>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -65,4 +89,4 @@
 		<div id="clear"></div>
 		<div id="message"></div>
 	</body>
-</html>
+</html>-->
