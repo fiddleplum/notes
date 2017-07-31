@@ -1,0 +1,119 @@
+<!doctype html><meta charset='UTF-8'>
+<html>
+	<head>
+		<title>Notes</title>
+		<meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=0'>
+		<link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet'>
+		<link href='https://fonts.googleapis.com/css?family=Oxygen+Mono' rel='stylesheet'>
+		<link rel='stylesheet' type='text/css' href='style.css'>
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+		<script src='format.js'></script>
+	</head>
+	<script>
+		function getQueryParams () {
+			var params = {}
+			var questionMarkIndex = window.location.href.indexOf('?');
+			if (questionMarkIndex != -1) {
+				var pairs = window.location.href.substr(questionMarkIndex + 1).split('&');
+				for (i in pairs) {
+					var keyValue = pairs[i].split('=', 2);
+					if (keyValue.length == 2) {
+						params[keyValue[0]] = keyValue[1];
+					}
+				}
+			}
+			return params;
+		}
+
+		function getNote (name) {
+			$.ajax({
+				url: 'data/' + name + '.mde',
+				context: document.body,
+				success: function(data) {
+					var html = '';
+					html += '<div id="title">' + name + '</div>';
+					if (params['o'] == 'e') {
+						html += '<div id="mde">';
+						html += data;
+						html += '</div>';
+					}
+					html += '<div id="html">';
+					html += textToHtml(data);
+					html += '</div>';
+					$('#content').html(html);
+				},
+				error: function() {
+					if (params['o'] == 'e') {
+						var html = '';
+						html += '<div id="mde">';
+						html += '</div>';
+						html += '<div id="html">';
+						html += '</div>';
+						$('#content').html(html);
+					}
+					else {
+						showMessage('Could not load note \"' + name + '\".');
+					}
+				}
+			});
+		}
+
+		function getNotes () {
+			$.ajax({
+				url: 'data/__list.txt',
+				context: document.body,
+				success: function(data) {
+					updateNoteList(data);
+				},
+				error: function() {
+					showMessage('Could not load list of notes.');
+				}
+			});
+		}
+
+		function showMessage (message) {
+			var div = $('#message');
+			div.html(message);
+			div.fadeIn(250);
+		}
+
+		function updateNoteList (data) {
+			var notes = data.split('\n');
+			var html = '';
+			html += '<div id="title">Notes</div>';
+			html += '<form id="new" action="." method="get">';
+			html += '<input type="hidden" name="p" value="' + password + '" />';
+			html += '<input type="hidden" name="o" value="e" />';
+			html += '<input id="note" class="left" type="text" name="n" />';
+			html += '<a href="javascript:if ($(\'#note\')[0].value != \'\') $(\'#new\').submit(); else void(0);" class="right">New</a>';
+			html += '<div class="clear"></div>';
+			html += '</form>';
+
+			html += '<div id="list">';
+			for (var i in notes) {
+				if (notes[i] == '') {
+					continue;
+				}
+				html += '<li><a href="?p=' + password + '&n=' + notes[i] + '">' + notes[i] + '</a></li>';
+			}
+			html += '</div>';
+			$('#content').html(html);
+		}
+
+		var params = getQueryParams();
+		var password = params['p'];
+		var note = params['n'];
+
+		if (note != undefined) {
+			getNote(note);
+		}
+		else {
+			getNotes();
+		}
+	</script>
+	<body>
+		<div id='content'></div>
+		<div id='clear'></div>
+		<div id='message'></div>
+	</body>
+</html>
