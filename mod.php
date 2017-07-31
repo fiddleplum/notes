@@ -64,6 +64,8 @@ else
 	$text = '';
 }
 
+print($text);
+
 // See if the note is already in the list..
 $noteList = @file_get_contents("data/__list.txt");
 $noteList = explode("\n", $noteList);
@@ -86,7 +88,7 @@ if ($text != '')
 		file_put_contents('data/__list.txt', $noteList);
 	}
 
-	file_put_contents("data/$note.$ext", stripslashes($text));
+	file_put_contents("data/$note.$ext", $text);
 }
 else // No text, so delete.
 {

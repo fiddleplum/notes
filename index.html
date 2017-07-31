@@ -30,26 +30,16 @@
 				url: 'data/' + name + '.mde',
 				context: document.body,
 				success: function(data) {
-					var html = '';
-					html += '<div id="title">' + name + '</div>';
 					if (params['o'] == 'e') {
-						html += '<div id="mde">';
-						html += data;
-						html += '</div>';
+						showEditNote(data);
 					}
-					html += '<div id="html">';
-					html += textToHtml(data);
-					html += '</div>';
-					$('#content').html(html);
+					else {
+						showViewNote(data);
+					}
 				},
 				error: function() {
 					if (params['o'] == 'e') {
-						var html = '';
-						html += '<div id="mde">';
-						html += '</div>';
-						html += '<div id="html">';
-						html += '</div>';
-						$('#content').html(html);
+						showEditNote('');
 					}
 					else {
 						showMessage('Could not load note \"' + name + '\".');
@@ -63,7 +53,7 @@
 				url: 'data/__list.txt',
 				context: document.body,
 				success: function(data) {
-					updateNoteList(data);
+					showNoteList(data);
 				},
 				error: function() {
 					showMessage('Could not load list of notes.');
@@ -77,15 +67,15 @@
 			div.fadeIn(250);
 		}
 
-		function updateNoteList (data) {
+		function showNoteList (data) {
 			var notes = data.split('\n');
 			var html = '';
 			html += '<div id="title">Notes</div>';
 			html += '<form id="new" action="." method="get">';
 			html += '<input type="hidden" name="p" value="' + password + '" />';
 			html += '<input type="hidden" name="o" value="e" />';
-			html += '<input id="note" class="left" type="text" name="n" />';
-			html += '<a href="javascript:if ($(\'#note\')[0].value != \'\') $(\'#new\').submit(); else void(0);" class="right">New</a>';
+			html += '<input id="note" type="text" name="n" />';
+			html += '<a href="javascript:if ($(\'#note\')[0].value != \'\') $(\'#new\').submit(); else void(0);">New</a>';
 			html += '<div class="clear"></div>';
 			html += '</form>';
 
@@ -94,10 +84,51 @@
 				if (notes[i] == '') {
 					continue;
 				}
-				html += '<li><a href="?p=' + password + '&n=' + notes[i] + '">' + notes[i] + '</a></li>';
+				html += '<li><a href="?p=' + password + '&n=' + notes[i] + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i] + '&o=e"><img src="edit24.png"/></a></li>';
 			}
 			html += '</div>';
 			$('#content').html(html);
+		}
+
+		function showViewNote (data) {
+			var html = '';
+			html += '<div id="title">' + note + '</div>';
+			html += '<div id="html">';
+			html += textToHtml(data);
+			html += '</div>';
+			$('#content').html(html);
+		}
+
+		function showEditNote (data) {
+			var html = '';
+			html += '<div id="buttons"><a href="javascript:save();"><img src="save24.png"/></a><a href=".?p=' + password + '&n=' + note + '"><img src="view24.png"/></a></div>';
+			html += '<div id="title">' + note + '</div>';
+			html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
+			html += data;
+			html += '</textarea>';
+			html += '<div id="html">';
+			html += textToHtml(data);
+			html += '</div>';
+			$('#content').html(html);
+		}
+
+		function updateHtml () {
+			$('#html').html(textToHtml($('#mde')[0].value));
+		}
+
+		function save () {
+			$.post({
+				url: 'mod.php?p=' + password + '&n=' + note + '&e=mde',
+				data: 't=' + encodeURIComponent($('#mde')[0].value),
+				success: function(data) {
+					if (data != 'SUCCESS') {
+						showMessage('Could not save the note.');
+					}
+				},
+				error: function() {
+					showMessage('Could not save the note.');
+				}
+			});
 		}
 
 		var params = getQueryParams();

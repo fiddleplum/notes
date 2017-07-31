@@ -2,16 +2,26 @@
 * { box-sizing: border-box; }
 body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0; font-size: 16px; font-family: "Lora", serif; }
 
-#content { margin: 0 auto; max-width: 1024px; }
+#content { width: 100%; height: 100vh; text-align: center; }
 
-#title { padding: 16px; border-bottom: 1px solid var(--dark); text-align: center; line-height: 1em; font-size: 4em; }
+#title { margin: 0 auto; max-width: 1024px; padding: 16px; border-bottom: 1px solid var(--dark); text-align: center; line-height: 1em; font-size: 4em; }
+#buttons { float: right; }
 
 #list { padding: 16px; text-align: center; font-size: 2em; }
 #list li { list-style-type: none; }
 #list li a { text-decoration: none; color: var(--medium); }
 #list li a:hover { text-decoration: underline; }
 
-#html { padding: 16px; }
+#new { padding: 16px; text-align: center; }
+#new input { margin-right: 16px; font-size: 2em; }
+#new a { text-decoration: none; color: var(--medium); font-size: 2em; }
+#new a:hover { text-decoration: underline; }
+
+#mde { display: inline-block; width: 40%; height: calc(100vh - 97px); vertical-align: top; border: 0; outline: 0; padding: 16px; }
+#mde + #html { display: inline-block; width: 40%; height: calc(100vh - 97px); vertical-align: top; }
+#title + #html { margin: 0 auto; width: auto; max-width: 1024px; }
+
+#html { padding: 16px; text-align: left; }
 #html > *:first-child { margin-top: 0; }
 #html h1 { font-size: 3em; font-weight: bold; line-height: 1em; margin: 1em 0 .33em 0; }
 #html h2 { font-size: 2em; font-weight: bold; line-height: 1em; margin: 1em 0 .5em 0; }
