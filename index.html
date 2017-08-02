@@ -63,8 +63,13 @@
 
 		function showMessage (message) {
 			var div = $('#message');
-			div.html(message);
-			div.fadeIn(250);
+			if (message != '') {
+				div.html(message);
+				div.fadeIn(250);
+			}
+			else {
+				div.fadeOut(250);
+			}
 		}
 
 		function showNoteList (data) {
@@ -133,17 +138,22 @@
 					if (data != 'SUCCESS') {
 						showMessage('Could not save the note:' + data);
 					}
-				},
-				error: function() {
-					showMessage('Could not save the note.');
-				}
-			});
-			$.post({
-				url: 'mod.php?p=' + password + '&n=' + note + '&e=html',
-				data: 't=' + encodeURIComponent($('#html')[0].innerHTML),
-				success: function(data) {
-					if (data != 'SUCCESS') {
-						showMessage('Could not save the note: ' + data);
+					else {
+						$.post({
+							url: 'mod.php?p=' + password + '&n=' + note + '&e=html',
+							data: 't=' + encodeURIComponent($('#html')[0].innerHTML),
+							success: function(data) {
+								if (data != 'SUCCESS') {
+									showMessage('Could not save the note: ' + data);
+								}
+								else {
+									showMessage('');
+								}
+							},
+							error: function() {
+								showMessage('Could not save the note.');
+							}
+						});
 					}
 				},
 				error: function() {
@@ -177,8 +187,8 @@
 		}
 	</script>
 	<body>
+		<div id='message'></div>
 		<div id='content'></div>
 		<div id='clear'></div>
-		<div id='message'></div>
 	</body>
 </html>

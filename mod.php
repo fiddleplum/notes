@@ -4,6 +4,8 @@
 // If there is text, it will save the note and update the note list if it was new.
 // If there is no text, it will delete the note and update the note list.
 
+error_reporting(E_ALL ^ E_WARNING);
+
 // Get password from GET
 if (isset($_GET['p']))
 {
@@ -95,8 +97,8 @@ else // No text, so delete.
 		array_splice($noteList, $noteIndex, 1);
 		$noteList = implode("\n", $noteList);
 		file_put_contents('data/__list.txt', $noteList);
-		unlink("data/$note.$ext");
 	}
+	unlink("data/$note.$ext");
 }
 
 print('SUCCESS');
