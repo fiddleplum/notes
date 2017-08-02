@@ -64,9 +64,7 @@ else
 	$text = '';
 }
 
-print($text);
-
-// See if the note is already in the list..
+// See if the note is already in the list.
 $noteList = @file_get_contents("data/__list.txt");
 $noteList = explode("\n", $noteList);
 $noteIndex = -1;
