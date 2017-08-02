@@ -18,7 +18,7 @@
 				for (i in pairs) {
 					var keyValue = pairs[i].split('=', 2);
 					if (keyValue.length == 2) {
-						params[keyValue[0]] = keyValue[1];
+						params[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, '%20'));
 					}
 				}
 			}
