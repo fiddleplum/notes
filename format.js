@@ -82,11 +82,21 @@ function textToHtml (text) {
 			}
 			else if (char == "[") {
 				var charNum2 = newLine.indexOf("|", charNum);
-				var linkText = newLine.substr(charNum + 1, charNum2 - (charNum + 1));
-				var charNum3 = newLine.indexOf("]", charNum2);
-				var linkUrl = newLine.substr(charNum2 + 1, charNum3 - (charNum2 + 1));
-				newLine2 += "<a href=\"" + linkUrl + "\">" + linkText + "</a>";
-				charNum = charNum3;
+				if (charNum2 != -1) {
+					var linkText = newLine.substr(charNum + 1, charNum2 - (charNum + 1));
+					var charNum3 = newLine.indexOf("]", charNum2);
+					if (charNum3 != -1) {
+						var linkUrl = newLine.substr(charNum2 + 1, charNum3 - (charNum2 + 1));
+						newLine2 += "<a href=\"" + linkUrl + "\">" + linkText + "</a>";
+						charNum = charNum3;
+					}
+					else {
+						newLine2 += char;
+					}
+				}
+				else {
+					newLine2 += char;
+				}
 			}
 			else {
 				newLine2 += char;
