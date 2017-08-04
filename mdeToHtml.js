@@ -17,12 +17,18 @@ Inline:
 
 var lineParsed = false;
 
-function textToHtml (text) {
+function mdeToHtml (text, cursor) {
 	var lines = text.split('\n');
 	lines.push("");
 	var html = "";
+	var numCharsProcessed = 0;
 	for (var lineNum = 0; lineNum < lines.length; lineNum++) {
 		var line = lines[lineNum];
+		
+		if (cursor != undefined && numCharsProcessed <= cursor && cursor <= numCharsProcessed + line.length) {
+			html += '<span id="cursor"></span>';
+		}
+		numCharsProcessed += line.length + 1;
 
 		lineParsed = false;
 
@@ -105,7 +111,6 @@ function textToHtml (text) {
 
 		html += newLine2;
 	}
-	console.log(html);
 	return html;
 }
 

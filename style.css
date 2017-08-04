@@ -44,7 +44,7 @@ body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0
 	#title { font-size: 4em; }
 	#buttons #swapButton { display: none; }
 	#mde { display: inline-block; width: 40%; }
-	#mde + #html { display: inline-block; width: 40%; }
+	#mde + #html { display: inline-block; width: 40%; overflow-y: scroll; }
 	#html { width: 1024px; margin: auto; }
 	#html h1 { font-size: 3em; }
 	#html h2 { font-size: 2em; }

@@ -7,7 +7,7 @@
 		<link href='https://fonts.googleapis.com/css?family=Oxygen+Mono' rel='stylesheet'>
 		<link rel='stylesheet' type='text/css' href='style.css'>
 		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
-		<script src='format.js'></script>
+		<script src='mdeToHtml.js'></script>
 	</head>
 	<script>
 		function getQueryParams () {
@@ -103,7 +103,7 @@
 			html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
 			html += '</div>';
 			html += '<div id="html">';
-			html += textToHtml(data);
+			html += mdeToHtml(data);
 			html += '</div>';
 			$('#content').html(html);
 		}
@@ -121,13 +121,19 @@
 			html += data;
 			html += '</textarea>';
 			html += '<div id="html">';
-			html += textToHtml(data);
+			html += mdeToHtml(data);
 			html += '</div>';
 			$('#content').html(html);
 		}
 
 		function updateHtml () {
-			$('#html').html(textToHtml($('#mde')[0].value));
+			var scrolledToBottom = ($('#html')[0].scrollHeight - $('#html')[0].scrollTop - $('#html')[0].clientHeight == 0);
+			$('#html').html(mdeToHtml($('#mde')[0].value, $('#mde')[0].selectionStart));
+			if ($('#cursor').length > 0) {
+				$('#html').animate({
+					scrollTop: $('#html')[0].scrollTop + $('#cursor').offset().top - $('#html').offset().top - ($('#html')[0].clientHeight / 2)
+				}, 100);
+			}
 		}
 
 		function save () {
