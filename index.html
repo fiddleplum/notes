@@ -130,8 +130,10 @@
 			var scrolledToBottom = ($('#html')[0].scrollHeight - $('#html')[0].scrollTop - $('#html')[0].clientHeight == 0);
 			$('#html').html(mdeToHtml($('#mde')[0].value, $('#mde')[0].selectionStart));
 			if ($('#cursor').length > 0) {
+				var scrollTop = $('#html')[0].scrollTop + $('#cursor').offset().top - $('#html').offset().top - ($('#html')[0].clientHeight / 2);
+				$('#cursor').remove();
 				$('#html').animate({
-					scrollTop: $('#html')[0].scrollTop + $('#cursor').offset().top - $('#html').offset().top - ($('#html')[0].clientHeight / 2)
+					scrollTop: scrollTop
 				}, 100);
 			}
 		}
