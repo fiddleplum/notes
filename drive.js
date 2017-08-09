@@ -133,6 +133,16 @@ DriveFile.prototype.update = function (text, callback) {
 	}.bind(this));
 }
 
+DriveFile.prototype.delete = function (callback) {
+	var request = gapi.client.request({
+		'path': '/drive/v3/files/' + this.id,
+		'method': 'DELETE',
+	});
+	request.execute(function (response) {
+		callback();
+	}.bind(this));
+}
+
 DriveFile.prototype.list = function (callback, pageToken) {
 	gapi.client.drive.files.list({
 		'folderId': this.id,

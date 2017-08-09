@@ -111,6 +111,9 @@
 						showViewNote(mde);
 					});
 				}
+				else if (op == 'd') {
+					deleteNote();
+				}
 				else {
 					getNotes(showNotes);
 				}
@@ -147,7 +150,7 @@
 					if (notes[i] == '') {
 						continue;
 					}
-					html += '<li><a href="?p=' + password + '&o=v&n=' + notes[i].replace('"', '%22') + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=e"><img src="edit24.png"/></a></li>';
+					html += '<li><a href="?p=' + password + '&o=v&n=' + notes[i].replace('"', '%22') + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=e"><img src="edit24.png"/></a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=d" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a></li>';
 				}
 				html += '</div>';
 				$('#content').html(html);
@@ -172,6 +175,7 @@
 				html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
 				html += '<a href="javascript:save();"><img src="save24.png"/></a>';
 				html +=	'<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '"><img src="view24.png"/></a>';
+				html +=	'<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
 				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
@@ -224,12 +228,34 @@
 				html += '<div id="title">' + note + '</div>';
 				html += '<div id="buttons">';
 				html +=	'<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e"><img src="edit24.png"/></a>';
+				html +=	'<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
 				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<div id="html">';
 				html += mdeToHtml(mde);
 				html += '</div>';
 				$('#content').html(html);
+			}
+
+			function deleteNote () {
+				showMessage('Deleting...');
+				var numDeleted = 0;
+				driveNotes.child(note + '.mde', function (driveFile) {
+					driveFile.delete(function () {
+						numDeleted += 1;
+						if (numDeleted == 2) {
+							window.location.replace('.?p=' + password);
+						}
+					});
+				});
+				driveNotes.child(note + '.html', function (driveFile) {
+					driveFile.delete(function () {
+						numDeleted += 1;
+						if (numDeleted == 2) {
+							window.location.replace('.?p=' + password);
+						}
+					});
+				});
 			}
 	</script>
 	</head>
