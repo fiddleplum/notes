@@ -8,193 +8,233 @@
 		<link rel='stylesheet' type='text/css' href='style.css'>
 		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
 		<script src='mdeToHtml.js'></script>
-	</head>
-	<script>
-		function getQueryParams () {
-			var params = {}
-			var questionMarkIndex = window.location.href.indexOf('?');
-			if (questionMarkIndex != -1) {
-				var pairs = window.location.href.substr(questionMarkIndex + 1).split('&');
-				for (i in pairs) {
-					var keyValue = pairs[i].split('=', 2);
-					if (keyValue.length == 2) {
-						params[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, '%20'));
+		<script src='drive.js'></script>
+		<script>
+			function getQueryParams () {
+				var params = {}
+				var questionMarkIndex = window.location.href.indexOf('?');
+				if (questionMarkIndex != -1) {
+					var pairs = window.location.href.substr(questionMarkIndex + 1).split('&');
+					for (i in pairs) {
+						var keyValue = pairs[i].split('=', 2);
+						if (keyValue.length == 2) {
+							params[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, '%20'));
+						}
 					}
 				}
+				return params;
 			}
-			return params;
-		}
 
-		function getNote (name) {
-			$.ajax({
-				url: 'data/' + name + '.mde',
-				context: document.body,
-				success: function(data) {
-					if (params['o'] == 'e') {
-						showEditNote(data);
-					}
-					else {
-						showViewNote(data);
-					}
-				},
-				error: function() {
-					if (params['o'] == 'e') {
-						showEditNote('');
-					}
-					else {
-						showMessage('Could not load note \"' + name + '\".');
-					}
+			function showMessage (message) {
+				var div = $('#message');
+				if (message != '') {
+					div.html(message);
+					div.fadeIn(250);
 				}
-			});
-		}
-
-		function getNotes () {
-			$.ajax({
-				url: 'data/__list.txt',
-				context: document.body,
-				success: function(data) {
-					showNoteList(data);
-				},
-				error: function() {
-					showMessage('Could not load list of notes.');
+				else {
+					div.fadeOut(250);
 				}
-			});
-		}
-
-		function showMessage (message) {
-			var div = $('#message');
-			if (message != '') {
-				div.html(message);
-				div.fadeIn(250);
 			}
-			else {
-				div.fadeOut(250);
-			}
-		}
 
-		function showNoteList (data) {
-			var notes = data.split('\n');
-			var html = '';
-			html += '<div id="title">Notes</div>';
-			html += '<form id="new" action="." method="get">';
-			html += '<input type="hidden" name="p" value="' + password + '" />';
-			html += '<input type="hidden" name="o" value="e" />';
-			html += '<input id="note" type="text" name="n" />';
-			html += '<a href="javascript:if ($(\'#note\')[0].value != \'\') $(\'#new\').submit(); else void(0);">New</a>';
-			html += '<div class="clear"></div>';
-			html += '</form>';
-
-			html += '<div id="list">';
-			for (var i in notes) {
-				if (notes[i] == '') {
-					continue;
+			function updateHtml () {
+				var scrolledToBottom = ($('#html')[0].scrollHeight - $('#html')[0].scrollTop - $('#html')[0].clientHeight == 0);
+				$('#html').html(mdeToHtml($('#mde')[0].value, $('#mde')[0].selectionStart));
+				if ($('#cursor').length > 0) {
+					var scrollTop = $('#html')[0].scrollTop + $('#cursor').offset().top - $('#html').offset().top - ($('#html')[0].clientHeight / 2);
+					$('#cursor').remove();
+					$('#html').animate({
+						scrollTop: scrollTop
+					}, 100);
 				}
-				html += '<li><a href="?p=' + password + '&n=' + notes[i] + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i] + '&o=e"><img src="edit24.png"/></a></li>';
 			}
-			html += '</div>';
-			$('#content').html(html);
-		}
 
-		function showViewNote (data) {
-			var html = '';
-			html += '<div id="title">' + note + '</div>';
-			html += '<div id="buttons">';
-			html +=	'<a href=".?p=' + password + '&n=' + note + '&o=e"><img src="edit24.png"/></a>';
-			html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
-			html += '</div>';
-			html += '<div id="html">';
-			html += mdeToHtml(data);
-			html += '</div>';
-			$('#content').html(html);
-		}
-
-		function showEditNote (data) {
-			var html = '';
-			html += '<div id="title">' + note + '</div>';
-			html += '<div id="buttons">';
-			html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
-			html += '<a href="javascript:save();"><img src="save24.png"/></a>';
-			html +=	'<a href=".?p=' + password + '&n=' + note + '"><img src="view24.png"/></a>';
-			html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
-			html += '</div>';
-			html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
-			html += data;
-			html += '</textarea>';
-			html += '<div id="html">';
-			html += mdeToHtml(data);
-			html += '</div>';
-			$('#content').html(html);
-		}
-
-		function updateHtml () {
-			var scrolledToBottom = ($('#html')[0].scrollHeight - $('#html')[0].scrollTop - $('#html')[0].clientHeight == 0);
-			$('#html').html(mdeToHtml($('#mde')[0].value, $('#mde')[0].selectionStart));
-			if ($('#cursor').length > 0) {
-				var scrollTop = $('#html')[0].scrollTop + $('#cursor').offset().top - $('#html').offset().top - ($('#html')[0].clientHeight / 2);
-				$('#cursor').remove();
-				$('#html').animate({
-					scrollTop: scrollTop
-				}, 100);
+			function swapViews () {
+				if ($('#mde').is(":visible")) {
+					$('#mde').fadeOut(200, function () {
+						$('#html').fadeIn(200);
+					});
+				}
+				else {
+					$('#html').fadeOut(200, function () {
+						$('#mde').fadeIn(200);
+					});
+				}
 			}
-		}
 
-		function save () {
-			$.post({
-				url: 'mod.php?p=' + password + '&n=' + note + '&e=mde',
-				data: 't=' + encodeURIComponent($('#mde')[0].value),
-				success: function(data) {
-					if (data != 'SUCCESS') {
-						showMessage('Could not save the note:' + data);
-					}
-					else {
-						$.post({
-							url: 'mod.php?p=' + password + '&n=' + note + '&e=html',
-							data: 't=' + encodeURIComponent($('#html')[0].innerHTML),
-							success: function(data) {
-								if (data != 'SUCCESS') {
-									showMessage('Could not save the note: ' + data);
+			var params = getQueryParams();
+
+			var password = params['p'];
+			var op = params['o'];
+			var note = params['n'];
+
+			var driveNotes = null;
+			var driveNote = null;
+
+			window.addEventListener('load', function () {
+				if (password == undefined) {
+					showMessage("You need to specify a password!");
+				}
+				else {
+					$.get('drive_api_key_' + password + '.txt', function (data) {
+						var drive = new Drive(data, function () {
+							var root = drive.root();
+							root.child('Notes', function (driveFile) {
+								driveNotes = driveFile;
+								if (driveNotes == null) {
+									root.createFolder('Notes', function () {
+										doNotes();
+									});
 								}
 								else {
-									showMessage('');
+									doNotes();
 								}
-							},
-							error: function() {
-								showMessage('Could not save the note.');
-							}
-						});
-					}
-				},
-				error: function() {
-					showMessage('Could not save the note.');
+							});
+						}, $('#signInButton')[0]);
+					});
 				}
 			});
-		}
+			window.addEventListener('resize', function () {
+				if (window.innerWidth >= 1024) {
+					$('#mde').removeAttr('style');
+					$('#html').removeAttr('style');
+				}
+			});
 
-		function swapViews () {
-			if ($('#mde').is(":visible")) {
-				$('#mde').fadeOut(200, function () {
-					$('#html').fadeIn(200);
+			function doNotes () {
+				if (op == 'e') {
+					getNote(function (mde) {
+						showEditNote(mde);
+					});
+				}
+				else if (op == 'v') {
+					getNote(function (mde) {
+						showViewNote(mde);
+					});
+				}
+				else {
+					getNotes(showNotes);
+				}
+			}
+
+			function getNotes (callback) {
+				driveNotes.list(function (notes) {
+					for (var i = 0; i < notes.length;) {
+						if (!notes[i].endsWith('.mde')) {
+							notes.splice(i, 1);
+						}
+						else {
+							notes[i] = notes[i].substr(0, notes[i].length - 4);
+							i++;
+						}
+					}
+					callback(notes);
 				});
 			}
-			else {
-				$('#html').fadeOut(200, function () {
-					$('#mde').fadeIn(200);
+
+			function showNotes (notes) {
+				var html = '';
+				html += '<div id="title">Notes</div>';
+				html += '<form id="new" action="." method="get">';
+				html += '<input type="hidden" name="p" value="' + password + '" />';
+				html += '<input type="hidden" name="o" value="e" />';
+				html += '<input id="note" type="text" name="n" />';
+				html += '<a href="javascript:if ($(\'#note\')[0].value != \'\') $(\'#new\').submit(); else void(0);">New</a>';
+				html += '<div class="clear"></div>';
+				html += '</form>';
+
+				html += '<div id="list">';
+				for (var i in notes) {
+					if (notes[i] == '') {
+						continue;
+					}
+					html += '<li><a href="?p=' + password + '&o=v&n=' + notes[i].replace('"', '%22') + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=e"><img src="edit24.png"/></a></li>';
+				}
+				html += '</div>';
+				$('#content').html(html);
+			}
+
+			function getNote (callback) {
+				driveNotes.child(note + '.mde', function (driveFile) {
+					driveNote = driveFile;
+					if (driveNote != null) {
+						driveNote.get(callback);
+					}
+					else {
+						callback("");
+					}
 				});
 			}
-		}
 
-		var params = getQueryParams();
-		var password = params['p'];
-		var note = params['n'];
+			function showEditNote (mde) {
+				var html = '';
+				html += '<div id="title">' + note + '</div>';
+				html += '<div id="buttons">';
+				html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
+				html += '<a href="javascript:save();"><img src="save24.png"/></a>';
+				html +=	'<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '"><img src="view24.png"/></a>';
+				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
+				html += '</div>';
+				html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
+				html += mde;
+				html += '</textarea>';
+				html += '<div id="html">';
+				html += mdeToHtml(mde);
+				html += '</div>';
+				$('#content').html(html);
+			}
 
-		if (note != undefined) {
-			getNote(note);
-		}
-		else {
-			getNotes();
-		}
+			function save () {
+				showMessage('Saving...');
+				var numSaved = 0;
+				if (driveNote != null) {
+					driveNote.update($('#mde')[0].value, function () {
+						numSaved += 1;
+						if (numSaved == 2) {
+							showMessage('');
+						}
+					});
+					driveNotes.child(note + '.html', function (driveFile) {
+						driveFile.update($('#html')[0].innerHTML, function () {
+							numSaved += 1;
+							if (numSaved == 2) {
+								showMessage('');
+							}
+						});
+					});
+				}
+				else {
+					driveNotes.createFile(note + '.mde', 'text/mde', $('#mde')[0].value, function (driveFile) {
+						driveNote = driveFile;
+						numSaved += 1;
+						if (numSaved == 2) {
+							showMessage('');
+						}
+					});
+					driveNotes.createFile(note + '.html', 'text/html', $('#html')[0].innerHTML, function (driveFile) {
+						numSaved += 1;
+						if (numSaved == 2) {
+							showMessage('');
+						}
+					});
+				}
+			}
+
+			function showViewNote (mde) {
+				var html = '';
+				html += '<div id="title">' + note + '</div>';
+				html += '<div id="buttons">';
+				html +=	'<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e"><img src="edit24.png"/></a>';
+				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
+				html += '</div>';
+				html += '<div id="html">';
+				html += mdeToHtml(mde);
+				html += '</div>';
+				$('#content').html(html);
+			}
 	</script>
+	</head>
 	<body>
+		<div id='signInButton'>...</div>
 		<div id='message'></div>
 		<div id='content'></div>
 		<div id='clear'></div>
