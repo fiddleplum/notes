@@ -12,6 +12,7 @@ Inline:
 "**bolded**" is bolded text
 "*italics*" is italics text
 "[link text|link url]" is link
+"$math$" is inline math
 
 */
 
@@ -85,6 +86,16 @@ function mdeToHtml (text, cursor) {
 					newLine2 += "</i>";
 				}
 				italics = !italics;
+			}
+			else if (char == "$") {
+				var charNum2 = newLine.indexOf("$", charNum + 1);
+				if (charNum2 != -1) {
+					newLine2 += parseMathContent(newLine.substr(charNum + 1, charNum2 - (charNum + 1)));
+					charNum = charNum2;
+				}
+				else {
+					newLine2 += char;
+				}
 			}
 			else if (char == "[") {
 				var charNum2 = newLine.indexOf("|", charNum);
@@ -239,7 +250,7 @@ function parseListItem (line) {
 	return "";
 }
 
-// QUOTES
+// QUOTES AND CODE
 
 var quote = false;
 var code = false;
