@@ -1,8 +1,11 @@
-<!doctype html><meta charset='UTF-8'>
+<!doctype html>
+<meta charset='UTF-8'>
 <html>
 	<head>
 		<title>Notes</title>
 		<meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=0'>
+		<link rel='shortcut icon' href='icon16.png' sizes='16x16'>
+		<link rel='shortcut icon' href='icon.png' sizes='152x152'>
 		<link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet'>
 		<link href='https://fonts.googleapis.com/css?family=Oxygen+Mono' rel='stylesheet'>
 		<link rel='stylesheet' type='text/css' href='style.css'>
@@ -11,7 +14,7 @@
 		<script src='mdeToHtml.js'></script>
 		<script src='drive.js'></script>
 		<script>
-			function getQueryParams () {
+			function getQueryParams() {
 				var params = {}
 				var questionMarkIndex = window.location.href.indexOf('?');
 				if (questionMarkIndex != -1) {
@@ -26,7 +29,7 @@
 				return params;
 			}
 
-			function showMessage (message) {
+			function showMessage(message) {
 				var div = $('#message');
 				if (message != '') {
 					div.html(message);
@@ -37,7 +40,7 @@
 				}
 			}
 
-			function updateHtml () {
+			function updateHtml() {
 				var scrolledToBottom = ($('#html')[0].scrollHeight - $('#html')[0].scrollTop - $('#html')[0].clientHeight == 0);
 				$('#html').html(mdeToHtml($('#mde')[0].value, $('#mde')[0].selectionStart));
 				if ($('#cursor').length > 0) {
@@ -49,7 +52,7 @@
 				}
 			}
 
-			function swapViews () {
+			function swapViews() {
 				if ($('#mde').is(":visible")) {
 					$('#mde').fadeOut(200, function () {
 						$('#html').fadeIn(200);
@@ -101,7 +104,7 @@
 				}
 			});
 
-			function doNotes () {
+			function doNotes() {
 				if (op == 'e') {
 					getNote(function (mde) {
 						showEditNote(mde);
@@ -120,7 +123,7 @@
 				}
 			}
 
-			function getNotes (callback) {
+			function getNotes(callback) {
 				driveNotes.list(function (notes) {
 					for (var i = 0; i < notes.length;) {
 						if (!notes[i].endsWith('.mde')) {
@@ -135,7 +138,7 @@
 				});
 			}
 
-			function showNotes (notes) {
+			function showNotes(notes) {
 				var html = '';
 				html += '<div id="title">Notes</div>';
 				html += '<form id="new" action="." method="get">';
@@ -157,7 +160,7 @@
 				$('#content').html(html);
 			}
 
-			function getNote (callback) {
+			function getNote(callback) {
 				driveNotes.child(note + '.mde', function (driveFile) {
 					driveNote = driveFile;
 					if (driveNote != null) {
@@ -169,14 +172,14 @@
 				});
 			}
 
-			function showEditNote (mde) {
+			function showEditNote(mde) {
 				var html = '';
 				html += '<div id="title">' + note + '</div>';
 				html += '<div id="buttons">';
 				html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
 				html += '<a href="javascript:save();"><img src="save24.png"/></a>';
-				html +=	'<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '"><img src="view24.png"/></a>';
-				html +=	'<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '"><img src="view24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
 				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
@@ -188,7 +191,7 @@
 				$('#content').html(html);
 			}
 
-			function save () {
+			function save() {
 				showMessage('Saving...');
 				var numSaved = 0;
 				if (driveNote != null) {
@@ -224,12 +227,12 @@
 				}
 			}
 
-			function showViewNote (mde) {
+			function showViewNote(mde) {
 				var html = '';
 				html += '<div id="title">' + note + '</div>';
 				html += '<div id="buttons">';
-				html +=	'<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e"><img src="edit24.png"/></a>';
-				html +=	'<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
+				html += '<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e"><img src="edit24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
 				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<div id="html">';
@@ -238,7 +241,7 @@
 				$('#content').html(html);
 			}
 
-			function deleteNote () {
+			function deleteNote() {
 				showMessage('Deleting...');
 				var numDeleted = 0;
 				driveNotes.child(note + '.mde', function (driveFile) {
@@ -258,7 +261,7 @@
 					});
 				});
 			}
-	</script>
+		</script>
 	</head>
 	<body>
 		<div id='signInButton'>...</div>
