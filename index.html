@@ -29,6 +29,22 @@
 				return params;
 			}
 
+			function getCookies(cname) {
+				var cookies = {}
+				var name = cname + '=';
+				var decodedCookie = decodeURIComponent(document.cookie);
+				var ca = decodedCookie.split(';');
+				for (var i = 0; i < ca.length; i++) {
+					var c = ca[i];
+					while (c.charAt(0) == ' ') {
+						c = c.substring(1);
+					}
+					var t = c.split('=');
+					cookies[t[0]] = t[1];
+				}
+				return cookies;
+			}
+
 			function showMessage(message) {
 				var div = $('#message');
 				if (message != '') {
@@ -65,16 +81,35 @@
 				}
 			}
 
+			function swapColors() {
+				if ($('#content').css('filter') == 'invert(1)') {
+					$('#content').css('filter', 'invert(0%)');
+					$('#signInButton').css('filter', 'invert(0%)');
+					document.cookie = 'bw=n';
+				}
+				else {
+					$('#content').css('filter', 'invert(100%)');
+					$('#signInButton').css('filter', 'invert(100%)');
+					document.cookie = 'bw=y';
+				}
+			}
+
 			var params = getQueryParams();
+			var cookies = getCookies();
 
 			var password = params['p'];
 			var op = params['o'];
 			var note = params['n'];
 
+			var bw = cookies['bw'];
+
 			var driveNotes = null;
 			var driveNote = null;
 
 			window.addEventListener('load', function () {
+				if (bw == 'y') {
+					swapColors();
+				}
 				if (password == undefined) {
 					showMessage("You need to specify a password!");
 				}
@@ -141,6 +176,9 @@
 			function showNotes(notes) {
 				var html = '';
 				html += '<div id="title">Notes</div>';
+				html += '<div id="buttons">';
+				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
+				html += '</div>';
 				html += '<form id="new" action="." method="get">';
 				html += '<input type="hidden" name="p" value="' + password + '" />';
 				html += '<input type="hidden" name="o" value="e" />';
@@ -154,7 +192,7 @@
 					if (notes[i] == '') {
 						continue;
 					}
-					html += '<li><a href="?p=' + password + '&o=v&n=' + notes[i].replace('"', '%22') + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=e"><img src="edit24.png"/></a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=d" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a></li>';
+					html += '<li><a href=".?p=' + password + '&o=v&n=' + notes[i].replace('"', '%22') + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=e"><img src="edit24.png"/></a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=d" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a></li>';
 				}
 				html += '</div>';
 				$('#content').html(html);
@@ -178,9 +216,10 @@
 				html += '<div id="buttons">';
 				html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
 				html += '<a href="javascript:save();"><img src="save24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '"><img src="view24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
-				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
+				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '&bw=' + bw + '"><img src="view24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '&bw=' + bw + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
+				html += '<a href=".?p=' + password + '&bw=' + bw + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
 				html += mde;
@@ -231,9 +270,10 @@
 				var html = '';
 				html += '<div id="title">' + note + '</div>';
 				html += '<div id="buttons">';
-				html += '<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e"><img src="edit24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
-				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
+				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
+				html += '<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e&bw=' + bw + '"><img src="edit24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '&bw=' + bw + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
+				html += '<a href=".?p=' + password + '&bw=' + bw + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<div id="html">';
 				html += mdeToHtml(mde);
