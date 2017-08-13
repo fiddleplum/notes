@@ -4,7 +4,7 @@ Blocks (at beginning of a line):
 "# ", "## ", "### " are headers
 "* ", "  * ", "    * " are unordered lists
 "1 ", "  1 ", "    1 " are ordered lists
-"` " is a quote
+"> " is a quote
 "! " is code
 everything else is paragraph
 
@@ -35,7 +35,7 @@ function mdeToHtml (text, cursor) {
 
 		var newLine = "";
 
-		line = line.replace("<", "&lt;").replace(">", "&gt;");
+		line = line.replace("<", "&lt;");
 
 		getListTypeAndLevel(line);
 
@@ -130,7 +130,7 @@ function mdeToHtml (text, cursor) {
 function parseHeadings (line) {
 	if (line.startsWith("# ")) {
 		lineParsed = true;
-		return "<h1>" + line.substr(2) + "</h1>\n";
+		return "<h3>" + line.substr(2) + "</h3>\n";
 	}
 	else if (line.startsWith("## ")) {
 		lineParsed = true;
@@ -138,7 +138,7 @@ function parseHeadings (line) {
 	}
 	else if (line.startsWith("### ")) {
 		lineParsed = true;
-		return "<h3>" + line.substr(4) + "</h3>\n";
+		return "<h1>" + line.substr(4) + "</h1>\n";
 	}
 	else {
 		return "";
@@ -256,7 +256,7 @@ var quote = false;
 var code = false;
 function closeQuoteAndCode (line) {
 	var inCode = line.startsWith("! ");
-	var inQuote = line.startsWith("` ");
+	var inQuote = line.startsWith("> ");
 	if (code && !inCode) {
 		code = false;
 		return "</code>\n";
@@ -270,7 +270,7 @@ function closeQuoteAndCode (line) {
 
 function parseQuoteAndCode (line) {
 	var inCode = line.startsWith("! ");
-	var inQuote = line.startsWith("` ");
+	var inQuote = line.startsWith("> ");
 	var newLine = "";
 	if (inCode) {
 		lineParsed = true;
