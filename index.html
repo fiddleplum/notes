@@ -217,9 +217,9 @@
 				html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
 				html += '<a href="javascript:save();"><img src="save24.png"/></a>';
 				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '&bw=' + bw + '"><img src="view24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '&bw=' + bw + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
-				html += '<a href=".?p=' + password + '&bw=' + bw + '"><img src="list24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '"><img src="view24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
+				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
 				html += mde;
@@ -271,9 +271,9 @@
 				html += '<div id="title">' + note + '</div>';
 				html += '<div id="buttons">';
 				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
-				html += '<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e&bw=' + bw + '"><img src="edit24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '&bw=' + bw + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
-				html += '<a href=".?p=' + password + '&bw=' + bw + '"><img src="list24.png"/></a>';
+				html += '<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e"><img src="edit24.png"/></a>';
+				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
+				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
 				html += '</div>';
 				html += '<div id="html">';
 				html += mdeToHtml(mde);
