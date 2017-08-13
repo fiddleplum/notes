@@ -4,6 +4,7 @@ Blocks (at beginning of a line):
 "# ", "## ", "### " are headers
 "* ", "  * ", "    * " are unordered lists
 "1 ", "  1 ", "    1 " are ordered lists
+"---" is a horizontal break line
 "> " is a quote
 "! " is code
 everything else is paragraph
@@ -50,6 +51,11 @@ function mdeToHtml (text, cursor) {
 		newLine += parseQuoteAndCode(line);
 
 		newLine += parseListItem(line);
+
+		if (line == '---') {
+			html += '<hr/>\n';
+			continue;
+		}
 
 		// No line was parsed, so it's just a paragraph.
 		if (!lineParsed && line.length > 0) {

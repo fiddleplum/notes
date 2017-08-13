@@ -39,6 +39,7 @@ body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0
 #html code { display: block; margin: 1em 0 1em 2em; font-family: "Oxygen Mono", monospace; white-space: pre; }
 #html a { text-decoration: none; color: blue; }
 #html a:hover { text-decoration: underline; }
+#html hr { border: 0; border-top: 1px solid black; }
 
 @media (min-width: 1024px) {
 	body { font-size: 16px; }
