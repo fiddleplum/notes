@@ -35,7 +35,16 @@ var Drive = function (clientId, onload, signInButton) {
 }
 
 Drive.prototype.root = function () {
-	return new DriveFile(this, 'root', '', 'application/vnd.google-apps.folder');
+	return new DriveFile('root', '', 'application/vnd.google-apps.folder', '');
+}
+
+Drive.prototype.getFile = function (id) {
+	gapi.client.drive.files.get({
+		'fileId': id
+	}).then(function (response) {
+		console.log(response);
+		// return new DriveFile(response.result.
+	});
 }
 
 Drive.prototype._signIn = function () {
@@ -43,11 +52,11 @@ Drive.prototype._signIn = function () {
 }
 
 // A JS representation of a Google Drive file or folder.
-var DriveFile = function (drive, id, name, mimeType) {
-	this.drive = drive;
+var DriveFile = function (id, name, mimeType, parentId) {
 	this.id = id;
 	this.name = name;
 	this.mimeType = mimeType;
+	this.parentId = parentId;
 }
 
 DriveFile.prototype.get = function (callback) {
@@ -59,6 +68,16 @@ DriveFile.prototype.get = function (callback) {
 	}.bind(this));
 }
 
+// Returns the parent of the file.
+DriveFile.prototyope.getParent = function (name, callback) {
+	gapi.client.drive.files.get({
+		'fileId': this.parentId
+	}).then(function (response) {
+		console.log("getParent: " + response);
+		// return new DriveFile(response.result.
+	});
+}
+
 // Returns the child file of the given name in the folder, or None of the file does not exist
 DriveFile.prototype.child = function (name, callback) {
 	gapi.client.drive.files.list({
@@ -67,7 +86,7 @@ DriveFile.prototype.child = function (name, callback) {
 	}).then(function (response) {
 		if (response.result.files.length > 0) {
 			var file = response.result.files[0];
-			callback(new DriveFile(this.drive, file.id, file.name, file.mimeType));
+			callback(new DriveFile(file.id, file.name, file.mimeType, file.parents[0]));
 		}
 		else {
 			callback(null);
@@ -79,13 +98,11 @@ DriveFile.prototype.createFolder = function (name, callback) {
 	gapi.client.drive.files.create({
 		'resource': {
 			'name': name,
-			'parents': [{
-				'id': this.id
-			}],
+			'parents': [this.id],
 			'mimeType': 'application/vnd.google-apps.folder'
 		}
 	}).then(function (response) {
-		callback(new DriveFile(this.drive, response.result.id, name, 'application/vnd.google-apps.folder'));
+		callback(new DriveFile(response.result.id, name, 'application/vnd.google-apps.folder', this.id));
 	}.bind(this));
 }
 
@@ -114,7 +131,7 @@ DriveFile.prototype.createFile = function (name, mimeType, text, callback) {
 		'body': multipartRequestBody
 	});
 	request.execute(function (response) {
-		callback(new DriveFile(this.drive, response.id, name, mimeType));
+		callback(new DriveFile(response.id, name, mimeType, this.id));
 	}.bind(this));
 }
 

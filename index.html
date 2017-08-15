@@ -12,15 +12,16 @@
 		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
 		<script src='math.js'></script>
 		<script src='mdeToHtml.js'></script>
-		<script src='drive.js'></script>
+		<script src='rfs/rfs.js'></script>
+		<script src='rfs/google_drive.js'></script>
 		<script>
 			function getQueryParams() {
-				var params = {}
-				var questionMarkIndex = window.location.href.indexOf('?');
+				let params = {}
+				let questionMarkIndex = window.location.href.indexOf('?');
 				if (questionMarkIndex != -1) {
-					var pairs = window.location.href.substr(questionMarkIndex + 1).split('&');
+					let pairs = window.location.href.substr(questionMarkIndex + 1).split('&');
 					for (i in pairs) {
-						var keyValue = pairs[i].split('=', 2);
+						let keyValue = pairs[i].split('=', 2);
 						if (keyValue.length == 2) {
 							params[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, '%20'));
 						}
@@ -30,23 +31,23 @@
 			}
 
 			function getCookies(cname) {
-				var cookies = {}
-				var name = cname + '=';
-				var decodedCookie = decodeURIComponent(document.cookie);
-				var ca = decodedCookie.split(';');
-				for (var i = 0; i < ca.length; i++) {
-					var c = ca[i];
+				let cookies = {}
+				let name = cname + '=';
+				let decodedCookie = decodeURIComponent(document.cookie);
+				let ca = decodedCookie.split(';');
+				for (let i = 0; i < ca.length; i++) {
+					let c = ca[i];
 					while (c.charAt(0) == ' ') {
 						c = c.substring(1);
 					}
-					var t = c.split('=');
+					let t = c.split('=');
 					cookies[t[0]] = t[1];
 				}
 				return cookies;
 			}
 
 			function showMessage(message) {
-				var div = $('#message');
+				let div = $('#message');
 				if (message != '') {
 					div.html(message);
 					div.fadeIn(250);
@@ -57,15 +58,28 @@
 			}
 
 			function updateHtml() {
-				var scrolledToBottom = ($('#html')[0].scrollHeight - $('#html')[0].scrollTop - $('#html')[0].clientHeight == 0);
-				$('#html').html(mdeToHtml($('#mde')[0].value, $('#mde')[0].selectionStart));
+				idleTime = new Date();
+				let scrolledToBottom = ($('#html')[0].scrollHeight - $('#html')[0].scrollTop - $('#html')[0].clientHeight == 0);
+				let newMde = $('#mde')[0].value;
+				if (!noteChanged && savedMde != newMde) {
+					noteChanged = true;
+					$('#title').html(note.name().substr(0, note.name().length - 4) + '*');
+				}
+				$('#html').html(mdeToHtml(newMde, $('#mde')[0].selectionStart));
 				if ($('#cursor').length > 0) {
-					var scrollTop = $('#html')[0].scrollTop + $('#cursor').offset().top - $('#html').offset().top - ($('#html')[0].clientHeight / 2);
+					let scrollTop = $('#html')[0].scrollTop + $('#cursor').offset().top - $('#html').offset().top - ($('#html')[0].clientHeight / 2);
 					$('#cursor').remove();
 					$('#html').animate({
 						scrollTop: scrollTop
 					}, 100);
 				}
+			}
+
+			function checkIdle() {
+				if (new Date().getTime() - idleTime.getTime() > 5 * 60 * 1000) {
+					window.location.replace('.?p=' + password + '&id=' + id);
+				}
+				setTimeout(checkIdle, 60 * 1000);
 			}
 
 			function swapViews() {
@@ -97,14 +111,19 @@
 			var params = getQueryParams();
 			var cookies = getCookies();
 
-			var password = params['p'];
-			var op = params['o'];
-			var note = params['n'];
+			var password = params['p']; // the password
+			var op = params['o']; // the operation
+			var id = params['id']; // the name of the note
 
 			var bw = cookies['bw'];
 
-			var driveNotes = null;
-			var driveNote = null;
+			var rfs = null // the RFS system
+			var notesFolderId = ''; // the id of the Notes folder
+			var note = null; // the RFS.Entry representing the id
+
+			var noteChanged = false;
+			var savedMde = '';
+			var idleTime = new Date();
 
 			window.addEventListener('load', function () {
 				if (bw == 'y') {
@@ -114,21 +133,8 @@
 					showMessage("You need to specify a password!");
 				}
 				else {
-					$.get('drive_api_key_' + password + '.txt', function (data) {
-						var drive = new Drive(data, function () {
-							var root = drive.root();
-							root.child('Notes', function (driveFile) {
-								driveNotes = driveFile;
-								if (driveNotes == null) {
-									root.createFolder('Notes', function () {
-										doNotes();
-									});
-								}
-								else {
-									doNotes();
-								}
-							});
-						}, $('#signInButton')[0]);
+					$.get('drive_api_key_' + password + '.txt', function (clientId) {
+						rfs = new RFS.GoogleDrive(clientId, $('#signInButton')[0], getNotesFolderId);
 					});
 				}
 			});
@@ -139,165 +145,208 @@
 				}
 			});
 
-			function doNotes() {
-				if (op == 'e') {
-					getNote(function (mde) {
-						showEditNote(mde);
+			function getNotesFolderId() {
+				rfs.root(function (folder) {
+					folder.child('Notes', function (folder) {
+						if (folder == null) {
+							root.createFolder('Notes', function (folder) {
+								notesFolderId = folder.id();
+								getNote();
+							});
+						}
+						else {
+							notesFolderId = folder.id();
+							getNote();
+						}
+					});
+				});
+			}
+
+			function getNote() {
+				if (id != undefined && id != '') {
+					rfs.get(id, function (entry) {
+						note = entry;
+						doOps();
 					});
 				}
-				else if (op == 'v') {
-					getNote(function (mde) {
-						showViewNote(mde);
+				else {
+					rfs.get(notesFolderId, function (entry) {
+						note = entry;
+						doOps();
 					});
+				}
+			}
+
+			function doOps() {
+				if (op == 'e') {
+					editNote();
+					checkIdle();
 				}
 				else if (op == 'd') {
 					deleteNote();
 				}
 				else {
-					getNotes(showNotes);
-				}
-			}
-
-			function getNotes(callback) {
-				driveNotes.list(function (notes) {
-					for (var i = 0; i < notes.length;) {
-						if (!notes[i].endsWith('.mde')) {
-							notes.splice(i, 1);
-						}
-						else {
-							notes[i] = notes[i].substr(0, notes[i].length - 4);
-							i++;
-						}
-					}
-					callback(notes);
-				});
-			}
-
-			function showNotes(notes) {
-				var html = '';
-				html += '<div id="title">Notes</div>';
-				html += '<div id="buttons">';
-				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
-				html += '</div>';
-				html += '<form id="new" action="." method="get">';
-				html += '<input type="hidden" name="p" value="' + password + '" />';
-				html += '<input type="hidden" name="o" value="e" />';
-				html += '<input id="note" type="text" name="n" />';
-				html += '<a href="javascript:if ($(\'#note\')[0].value != \'\') $(\'#new\').submit(); else void(0);">New</a>';
-				html += '<div class="clear"></div>';
-				html += '</form>';
-
-				html += '<div id="list">';
-				for (var i in notes) {
-					if (notes[i] == '') {
-						continue;
-					}
-					html += '<li><a href=".?p=' + password + '&o=v&n=' + notes[i].replace('"', '%22') + '">' + notes[i] + '</a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=e"><img src="edit24.png"/></a> <a href="?p=' + password + '&n=' + notes[i].replace('"', '%22') + '&o=d" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a></li>';
-				}
-				html += '</div>';
-				$('#content').html(html);
-			}
-
-			function getNote(callback) {
-				driveNotes.child(note + '.mde', function (driveFile) {
-					driveNote = driveFile;
-					if (driveNote != null) {
-						driveNote.get(callback);
+					if (note.isFolder()) {
+						viewNotes();
 					}
 					else {
-						callback("");
+						viewNote();
 					}
+				}
+			}
+
+			function newNote(name) {
+				if (name != '') {
+					note.createFile(name + '.mde', 'text/mde', function (file) {
+						note.createFile(name + '.html', 'text/html', function (file) {
+							window.location.replace('.?p=' + password + '&id=' + note.id());
+						});
+					});
+				}
+			}
+
+			function newFolder(name) {
+				if (name != '') {
+					note.createFolder(name, function () {
+						window.location.replace('.?p=' + password + '&id=' + note.id());
+					});
+				}
+			}
+
+			function viewNotes() {
+				note.list(function (entries) {
+					let html = '';
+					html += '<div id="title">' + note.name() + '</div>';
+
+					html += '<div id="buttons">';
+					html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
+					html += '</div>';
+
+					html += '<div id="new">';
+					html += '<input id="new_name" type="text" />';
+					html += '<a href="javascript:newNote($(\'#new_name\')[0].value);"><img src="newfile24.png"/></a> <a href="javascript:newFolder($(\'#new_name\')[0].value);"><img src="newfolder24.png"/></a>';
+					html += '</div>';
+
+					html += '<div class="clear"></div>';
+
+					html += '<div id="list">';
+					if (note.id() != notesFolderId) {
+						html += '<li><a href=".?p=' + password + '&id=' + note.parentId() + '">..</a></li>';
+					}
+					let ids = Object.keys(entries);
+					for (let i = 0; i < ids.length; i++) { // specially prefixed notes
+						let id = ids[i];
+						let name = entries[id];
+						if (name.endsWith('.mde') && name.charCodeAt(0) < 65) {
+							html += '<li><a href=".?p=' + password + '&id=' + id + '">' + name.substr(0, name.length - 4) + '</a> <a href="?p=' + password + '&id=' + id + '&o=e"><img src="edit24.png"/></a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a></li>';
+						}
+					}
+					for (let i = 0; i < ids.length; i++) { // folders
+						let id = ids[i];
+						let name = entries[id];
+						if (!name.endsWith('.mde') && !name.endsWith('.html')) {
+							html += '<li><a href=".?p=' + password + '&id=' + id + '">' + name + '</a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteFolder(\'' + id + '\');"><img src="delete24.png"/></a></li>';
+						}
+					}
+					for (let i = 0; i < ids.length; i++) { // everything else
+						let id = ids[i];
+						let name = entries[id];
+						if (name.endsWith('.mde') && name.charCodeAt(0) >= 65) {
+							html += '<li><a href=".?p=' + password + '&id=' + id + '">' + name.substr(0, name.length - 4) + '</a> <a href="?p=' + password + '&id=' + id + '&o=e"><img src="edit24.png"/></a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a></li>';
+						}
+					}
+					html += '</div>';
+					$('#content').html(html);
 				});
 			}
 
-			function showEditNote(mde) {
-				var html = '';
-				html += '<div id="title">' + note + '</div>';
-				html += '<div id="buttons">';
-				html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
-				html += '<a href="javascript:save();"><img src="save24.png"/></a>';
-				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=v&n=' + note.replace('"', '%22') + '"><img src="view24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
-				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
-				html += '</div>';
-				html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
-				html += mde;
-				html += '</textarea>';
-				html += '<div id="html">';
-				html += mdeToHtml(mde);
-				html += '</div>';
-				$('#content').html(html);
+			function viewNote() {
+				note.load(function (data) {
+					let html = '';
+					html += '<div id="title">' + note.name().substr(0, note.name().length - 4) + '</div>';
+					html += '<div id="buttons">';
+					html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
+					html += '<a href=".?p=' + password + '&o=e&id=' + id + '"><img src="edit24.png"/></a>';
+					html += '<a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a>';
+					html += '<a href=".?p=' + password + '&id=' + note.parentId() + '"><img src="list24.png"/></a>';
+					html += '</div>';
+					html += '<div id="html">';
+					html += mdeToHtml(data);
+					html += '</div>';
+					$('#content').html(html);
+				});
+			}
+
+			function editNote(mde) {
+				note.load(function (data) {
+					savedMde = data;
+					var html = '';
+					html += '<div id="title">' + note.name().substr(0, note.name().length - 4) + '</div>';
+					html += '<div id="buttons">';
+					html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
+					html += '<a href="javascript:save();"><img src="save24.png"/></a>';
+					html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
+					html += '<a href=".?p=' + password + '&o=v&id=' + id + '"><img src="view24.png"/></a>';
+					html += '<a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a>';
+					html += '<a href=".?p=' + password + '&id=' + note.parentId() + '"><img src="list24.png"/></a>';
+					html += '</div>';
+					html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
+					html += data;
+					html += '</textarea>';
+					html += '<div id="html">';
+					html += mdeToHtml(data);
+					html += '</div>';
+					$('#content').html(html);
+				});
 			}
 
 			function save() {
 				showMessage('Saving...');
 				var numSaved = 0;
-				if (driveNote != null) {
-					driveNote.update($('#mde')[0].value, function () {
-						numSaved += 1;
-						if (numSaved == 2) {
-							showMessage('');
-						}
-					});
-					driveNotes.child(note + '.html', function (driveFile) {
-						driveFile.update($('#html')[0].innerHTML, function () {
+				note.save($('#mde')[0].value, function () {
+					numSaved += 1;
+					if (numSaved == 2) {
+						showMessage('');
+						$('#title').html(note.name().substr(0, note.name().length - 4));
+						savedMde = $('#mde')[0].value;
+						noteChanged = false;
+					}
+				});
+				rfs.get(note.parentId(), function (parentFolder) {
+					parentFolder.child(note.name().substr(0, note.name().length - 4) + '.html', function (noteHtml) {
+						noteHtml.save($('#html')[0].innerHTML, function () {
 							numSaved += 1;
 							if (numSaved == 2) {
 								showMessage('');
+								$('#title').html(note.name().substr(0, note.name().length - 4));
+								savedMde = $('#mde')[0].value;
+								noteChanged = false;
 							}
 						});
 					});
-				}
-				else {
-					driveNotes.createFile(note + '.mde', 'text/mde', $('#mde')[0].value, function (driveFile) {
-						driveNote = driveFile;
-						numSaved += 1;
-						if (numSaved == 2) {
-							showMessage('');
-						}
-					});
-					driveNotes.createFile(note + '.html', 'text/html', $('#html')[0].innerHTML, function (driveFile) {
-						numSaved += 1;
-						if (numSaved == 2) {
-							showMessage('');
-						}
-					});
-				}
+				});
 			}
 
-			function showViewNote(mde) {
-				var html = '';
-				html += '<div id="title">' + note + '</div>';
-				html += '<div id="buttons">';
-				html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
-				html += '<a href=".?p=' + password + '&n=' + note.replace('"', '%22') + '&o=e"><img src="edit24.png"/></a>';
-				html += '<a href=".?p=' + password + '&o=d&n=' + note.replace('"', '%22') + '" onclick="return confirm(\'Are you sure?\')"><img src="delete24.png"/></a>';
-				html += '<a href=".?p=' + password + '"><img src="list24.png"/></a>';
-				html += '</div>';
-				html += '<div id="html">';
-				html += mdeToHtml(mde);
-				html += '</div>';
-				$('#content').html(html);
-			}
-
-			function deleteNote() {
+			function deleteNote(id) {
 				showMessage('Deleting...');
-				var numDeleted = 0;
-				driveNotes.child(note + '.mde', function (driveFile) {
-					driveFile.delete(function () {
-						numDeleted += 1;
-						if (numDeleted == 2) {
-							window.location.replace('.?p=' + password);
-						}
+				rfs.get(id, function (noteMde) {
+					rfs.delete(id, function () {
+						rfs.get(noteMde.parentId(), function (parentFolder) {
+							parentFolder.child(noteMde.name().substr(0, noteMde.name().length - 4) + '.html', function (noteHtml) {
+								rfs.delete(noteHtml.id(), function () {
+									window.location.replace('.?p=' + password + '&id=' + noteMde.parentId());
+								});
+							});
+						});
 					});
 				});
-				driveNotes.child(note + '.html', function (driveFile) {
-					driveFile.delete(function () {
-						numDeleted += 1;
-						if (numDeleted == 2) {
-							window.location.replace('.?p=' + password);
-						}
+			}
+
+			function deleteFolder(id) {
+				showMessage('Deleting...');
+				rfs.get(id, function (folder) {
+					rfs.delete(id, function () {
+						window.location.replace('.?p=' + password + '&id=' + folder.parentId());
 					});
 				});
 			}
