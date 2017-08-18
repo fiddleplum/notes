@@ -197,9 +197,9 @@
 
 			function newNote(name) {
 				if (name != '') {
-					note.createFile(name + '.mde', 'text/mde', function (file) {
-						note.createFile(name + '.html', 'text/html', function (file) {
-							window.location.replace('.?p=' + password + '&id=' + note.id());
+					note.createFile(name + '.html', 'text/html', function (file) {
+						note.createFile(name + '.mde', 'text/mde', function (file) {
+							window.location.replace('.?p=' + password + '&o=e&id=' + file.id());
 						});
 					});
 				}
@@ -207,8 +207,8 @@
 
 			function newFolder(name) {
 				if (name != '') {
-					note.createFolder(name, function () {
-						window.location.replace('.?p=' + password + '&id=' + note.id());
+					note.createFolder(name, function (folder) {
+						window.location.replace('.?p=' + password + '&id=' + folder.id());
 					});
 				}
 			}
