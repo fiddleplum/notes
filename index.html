@@ -144,6 +144,29 @@
 					$('#html').removeAttr('style');
 				}
 			});
+			window.addEventListener('keyup', function (event) {
+				if (op == 'e') {
+					if (event.ctrlKey && event.shiftKey) {
+						if (event.keyCode == 8 && !noteChanged) { // backspace
+							window.location.replace('.?p=' + password + '&id=' + note.parentId());
+						}
+						else if (event.keyCode == 86 && !noteChanged) { // v
+							window.location.replace('.?p=' + password + '&id=' + note.id());
+						}
+						else if (event.keyCode == 83) {
+							save();
+						}
+					}
+				}
+				else {
+					if (event.keyCode == 8 && note.id() != notesFolderId) { // backspace
+						window.location.replace('.?p=' + password + '&id=' + note.parentId());
+					}
+					if (event.keyCode == 69 && !note.isFolder()) { // e
+						window.location.replace('.?p=' + password + '&o=e&id=' + note.id());
+					}
+				}
+			});
 
 			function getNotesFolderId() {
 				rfs.root(function (folder) {
@@ -181,9 +204,6 @@
 				if (op == 'e') {
 					editNote();
 					checkIdle();
-				}
-				else if (op == 'd') {
-					deleteNote();
 				}
 				else {
 					if (note.isFolder()) {
