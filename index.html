@@ -76,7 +76,7 @@
 			}
 
 			function checkIdle() {
-				if (new Date().getTime() - idleTime.getTime() > 5 * 60 * 1000) {
+				if (!noteChanged && (new Date().getTime() - idleTime.getTime() > 5 * 60 * 1000)) {
 					window.location.replace('.?p=' + password + '&id=' + id);
 				}
 				setTimeout(checkIdle, 60 * 1000);
