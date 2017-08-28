@@ -1,3 +1,2 @@
-data/*
-google-api-php-client/
 drive_api_key_*
+aws_s3_api_key_*

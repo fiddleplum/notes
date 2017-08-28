@@ -13,7 +13,7 @@
 		<script src='math.js'></script>
 		<script src='mdeToHtml.js'></script>
 		<script src='rfs/rfs.js'></script>
-		<script src='rfs/google_drive.js'></script>
+		<script src='rfs/aws_s3.js'></script>
 		<script>
 			function getQueryParams() {
 				let params = {}
@@ -98,12 +98,10 @@
 			function swapColors() {
 				if ($('#content').css('filter') == 'invert(1)') {
 					$('#content').css('filter', 'invert(0%)');
-					$('#signInButton').css('filter', 'invert(0%)');
 					document.cookie = 'bw=n';
 				}
 				else {
 					$('#content').css('filter', 'invert(100%)');
-					$('#signInButton').css('filter', 'invert(100%)');
 					document.cookie = 'bw=y';
 				}
 			}
@@ -133,8 +131,9 @@
 					showMessage("You need to specify a password!");
 				}
 				else {
-					$.get('drive_api_key_' + password + '.txt', function (clientId) {
-						rfs = new RFS.GoogleDrive(clientId, $('#signInButton')[0], getNotesFolderId);
+					$.get('aws_s3_api_key_' + password + '.txt', function (content) {
+						let keys = content.split('\n');
+						rfs = new RFS.AwsS3(keys[0], keys[1], keys[2], 'data-hurley', getNotesFolderId);
 					});
 				}
 			});
@@ -169,8 +168,8 @@
 			});
 
 			function getNotesFolderId() {
-				rfs.root(function (folder) {
-					folder.child('Notes', function (folder) {
+				rfs.root(function (root) {
+					root.child('Notes', function (folder) {
 						if (folder == null) {
 							root.createFolder('Notes', function (folder) {
 								notesFolderId = folder.id();
@@ -373,7 +372,6 @@
 		</script>
 	</head>
 	<body>
-		<div id='signInButton'>...</div>
 		<div id='message'></div>
 		<div id='content'></div>
 		<div id='clear'></div>
