@@ -144,21 +144,21 @@
 				}
 			});
 			window.addEventListener('keyup', function (event) {
-				if (!$('#new_name').is(":focus") && !$('#mde').is(":focus")) {
-					if (op == 'e') {
-						if (event.ctrlKey && event.shiftKey) {
-							if (event.keyCode == 8 && !noteChanged) { // backspace
-								window.location.replace('.?p=' + password + '&n=' + s3.parent(note));
-							}
-							else if (event.keyCode == 86 && !noteChanged) { // v
-								window.location.replace('.?p=' + password + '&n=' + note);
-							}
-							else if (event.keyCode == 83) {
-								save();
-							}
+				if (op == 'e') {
+					if (event.ctrlKey && event.shiftKey) {
+						if (event.keyCode == 8 && !noteChanged) { // backspace
+							window.location.replace('.?p=' + password + '&n=' + s3.parent(note));
+						}
+						else if (event.keyCode == 86 && !noteChanged) { // v
+							window.location.replace('.?p=' + password + '&n=' + note);
+						}
+						else if (event.keyCode == 83) { // s
+							save();
 						}
 					}
-					else {
+				}
+				else {
+					if (!$('#new_name').is(":focus")) {
 						if (event.keyCode == 8 && note != '') { // backspace
 							window.location.replace('.?p=' + password + '&n=' + s3.parent(note));
 						}
