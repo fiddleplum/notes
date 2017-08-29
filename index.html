@@ -12,8 +12,7 @@
 		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
 		<script src='math.js'></script>
 		<script src='mdeToHtml.js'></script>
-		<script src='rfs/rfs.js'></script>
-		<script src='rfs/aws_s3.js'></script>
+		<script src='s3.js'></script>
 		<script>
 			function getQueryParams() {
 				let params = {}
@@ -63,7 +62,7 @@
 				let newMde = $('#mde')[0].value;
 				if (!noteChanged && savedMde != newMde) {
 					noteChanged = true;
-					$('#title').html(note.name().substr(0, note.name().length - 4) + '*');
+					$('#title').html(s3.name(note) + '*');
 				}
 				$('#html').html(mdeToHtml(newMde, $('#mde')[0].selectionStart));
 				if ($('#cursor').length > 0) {
@@ -77,7 +76,7 @@
 
 			function checkIdle() {
 				if (!noteChanged && (new Date().getTime() - idleTime.getTime() > 5 * 60 * 1000)) {
-					window.location.replace('.?p=' + password + '&id=' + id);
+					window.location.replace('.?p=' + password + '&n=' + note);
 				}
 				setTimeout(checkIdle, 60 * 1000);
 			}
@@ -111,13 +110,14 @@
 
 			var password = params['p']; // the password
 			var op = params['o']; // the operation
-			var id = params['id']; // the name of the note
+			var note = params['n']; // the path of the note minus the Notes/ folder.
+			if (note == undefined) {
+				note = '';
+			}
 
 			var bw = cookies['bw'];
 
-			var rfs = null // the RFS system
-			var notesFolderId = ''; // the id of the Notes folder
-			var note = null; // the RFS.Entry representing the id
+			var s3 = null // the RFS system
 
 			var noteChanged = false;
 			var savedMde = '';
@@ -133,7 +133,7 @@
 				else {
 					$.get('aws_s3_api_key_' + password + '.txt', function (content) {
 						let keys = content.split('\n');
-						rfs = new RFS.AwsS3(keys[0], keys[1], keys[2], 'data-hurley', getNotesFolderId);
+						s3 = new S3(keys[0], keys[1], keys[2], 'data-hurley', createNotesFolder);
 					});
 				}
 			});
@@ -144,59 +144,42 @@
 				}
 			});
 			window.addEventListener('keyup', function (event) {
-				if (op == 'e') {
-					if (event.ctrlKey && event.shiftKey) {
-						if (event.keyCode == 8 && !noteChanged) { // backspace
-							window.location.replace('.?p=' + password + '&id=' + note.parentId());
-						}
-						else if (event.keyCode == 86 && !noteChanged) { // v
-							window.location.replace('.?p=' + password + '&id=' + note.id());
-						}
-						else if (event.keyCode == 83) {
-							save();
+				if (!$('#new_name').is(":focus") && !$('#mde').is(":focus")) {
+					if (op == 'e') {
+						if (event.ctrlKey && event.shiftKey) {
+							if (event.keyCode == 8 && !noteChanged) { // backspace
+								window.location.replace('.?p=' + password + '&n=' + s3.parent(note));
+							}
+							else if (event.keyCode == 86 && !noteChanged) { // v
+								window.location.replace('.?p=' + password + '&n=' + note);
+							}
+							else if (event.keyCode == 83) {
+								save();
+							}
 						}
 					}
-				}
-				else {
-					if (event.keyCode == 8 && note.id() != notesFolderId) { // backspace
-						window.location.replace('.?p=' + password + '&id=' + note.parentId());
-					}
-					if (event.keyCode == 69 && !note.isFolder()) { // e
-						window.location.replace('.?p=' + password + '&o=e&id=' + note.id());
+					else {
+						if (event.keyCode == 8 && note != '') { // backspace
+							window.location.replace('.?p=' + password + '&n=' + s3.parent(note));
+						}
+						if (event.keyCode == 69 && note != '' && !note.endsWith('/')) { // e
+							window.location.replace('.?p=' + password + '&o=e&n=' + note);
+						}
 					}
 				}
 			});
 
-			function getNotesFolderId() {
-				rfs.root(function (root) {
-					root.child('Notes', function (folder) {
-						if (folder == null) {
-							root.createFolder('Notes', function (folder) {
-								notesFolderId = folder.id();
-								getNote();
-							});
-						}
-						else {
-							notesFolderId = folder.id();
-							getNote();
-						}
-					});
+			function createNotesFolder() {
+				s3.exists('Notes/', function (exists) {
+					if (!exists) {
+						s3.createFolder('', 'Notes/', function (path) {
+							doOps();
+						});
+					}
+					else {
+						doOps();
+					}
 				});
-			}
-
-			function getNote() {
-				if (id != undefined && id != '') {
-					rfs.get(id, function (entry) {
-						note = entry;
-						doOps();
-					});
-				}
-				else {
-					rfs.get(notesFolderId, function (entry) {
-						note = entry;
-						doOps();
-					});
-				}
 			}
 
 			function doOps() {
@@ -205,7 +188,7 @@
 					checkIdle();
 				}
 				else {
-					if (note.isFolder()) {
+					if (note == '' || note.endsWith('/')) {
 						viewNotes();
 					}
 					else {
@@ -216,9 +199,9 @@
 
 			function newNote(name) {
 				if (name != '') {
-					note.createFile(name + '.html', 'text/html', function (file) {
-						note.createFile(name + '.mde', 'text/mde', function (file) {
-							window.location.replace('.?p=' + password + '&o=e&id=' + file.id());
+					s3.createFile('Notes/' + note, name + '.html', 'text/html', function (path) {
+						s3.createFile('Notes/' + note, name + '.mde', 'text/mde', function (path) {
+							window.location.replace('.?p=' + password + '&o=e&n=' + note + name);
 						});
 					});
 				}
@@ -226,16 +209,21 @@
 
 			function newFolder(name) {
 				if (name != '') {
-					note.createFolder(name, function (folder) {
-						window.location.replace('.?p=' + password + '&id=' + folder.id());
+					s3.createFolder('Notes/' + note, name + '/', function (path) {
+						window.location.replace('.?p=' + password + '&n=' + note + name + '/');
 					});
 				}
 			}
 
 			function viewNotes() {
-				note.list(function (entries) {
+				s3.list('Notes/' + note, function (children) {
 					let html = '';
-					html += '<div id="title">' + note.name() + '</div>';
+					if (note == '') {
+						html += '<div id="title">Notes</div>';
+					}
+					else {
+						html += '<div id="title">' + s3.name(note) + '</div>';
+					}
 
 					html += '<div id="buttons">';
 					html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
@@ -249,29 +237,23 @@
 					html += '<div class="clear"></div>';
 
 					html += '<div id="list">';
-					if (note.id() != notesFolderId) {
-						html += '<li><a href=".?p=' + password + '&id=' + note.parentId() + '">..</a></li>';
+					if (note != '') {
+						html += '<li><a href=".?p=' + password + '&n=' + s3.parent(note) + '">..</a></li>';
 					}
-					let ids = Object.keys(entries);
-					for (let i = 0; i < ids.length; i++) { // specially prefixed notes
-						let id = ids[i];
-						let name = entries[id];
-						if (name.endsWith('.mde') && name.charCodeAt(0) < 65) {
-							html += '<li><a href=".?p=' + password + '&id=' + id + '">' + name.substr(0, name.length - 4) + '</a> <a href="?p=' + password + '&id=' + id + '&o=e"><img src="edit24.png"/></a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a></li>';
+					for (let i = 0; i < children.files.length; i++) { // specially prefixed notes
+						if (children.files[i].endsWith('.mde') && children.files[i].charCodeAt(0) < 65) {
+							let name = children.files[i].substring(0, children.files[i].length - 4);
+							html += '<li><a href=".?p=' + password + '&n=' + note + name + '">' + name + '</a> <a href="?p=' + password + '&n=' + note + name + '&o=e"><img src="edit24.png"/></a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + note + name + '\');"><img src="delete24.png"/></a></li>';
 						}
 					}
-					for (let i = 0; i < ids.length; i++) { // folders
-						let id = ids[i];
-						let name = entries[id];
-						if (!name.endsWith('.mde') && !name.endsWith('.html')) {
-							html += '<li><a href=".?p=' + password + '&id=' + id + '">' + name + '</a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteFolder(\'' + id + '\');"><img src="delete24.png"/></a></li>';
-						}
+					for (let i = 0; i < children.folders.length; i++) { // folders
+						let name = children.folders[i];
+						html += '<li><a href=".?p=' + password + '&n=' + note + name + '/' + '">' + name + '</a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteFolder(\'' + note + name + '/\');"><img src="delete24.png"/></a></li>';
 					}
-					for (let i = 0; i < ids.length; i++) { // everything else
-						let id = ids[i];
-						let name = entries[id];
-						if (name.endsWith('.mde') && name.charCodeAt(0) >= 65) {
-							html += '<li><a href=".?p=' + password + '&id=' + id + '">' + name.substr(0, name.length - 4) + '</a> <a href="?p=' + password + '&id=' + id + '&o=e"><img src="edit24.png"/></a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a></li>';
+					for (let i = 0; i < children.files.length; i++) { // everything else
+						let name = children.files[i].substring(0, children.files[i].length - 4);
+						if (children.files[i].endsWith('.mde') && children.files[i].charCodeAt(0) >= 65) {
+							html += '<li><a href=".?p=' + password + '&n=' + note + name + '">' + name + '</a> <a href="?p=' + password + '&n=' + note + name + '&o=e"><img src="edit24.png"/></a> <a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + note + name + '\');"><img src="delete24.png"/></a></li>';
 						}
 					}
 					html += '</div>';
@@ -280,14 +262,14 @@
 			}
 
 			function viewNote() {
-				note.load(function (data) {
+				s3.load('Notes/' + note + '.mde', function (data) {
 					let html = '';
-					html += '<div id="title">' + note.name().substr(0, note.name().length - 4) + '</div>';
+					html += '<div id="title">' + s3.name(note) + '</div>';
 					html += '<div id="buttons">';
 					html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
-					html += '<a href=".?p=' + password + '&o=e&id=' + id + '"><img src="edit24.png"/></a>';
-					html += '<a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a>';
-					html += '<a href=".?p=' + password + '&id=' + note.parentId() + '"><img src="list24.png"/></a>';
+					html += '<a href=".?p=' + password + '&o=e&n=' + note + '"><img src="edit24.png"/></a>';
+					html += '<a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + note + '\');"><img src="delete24.png"/></a>';
+					html += '<a href=".?p=' + password + '&n=' + s3.parent(note) + '"><img src="list24.png"/></a>';
 					html += '</div>';
 					html += '<div id="html">';
 					html += mdeToHtml(data);
@@ -297,17 +279,17 @@
 			}
 
 			function editNote(mde) {
-				note.load(function (data) {
+				s3.load('Notes/' + note + '.mde', function (data) {
 					savedMde = data;
 					var html = '';
-					html += '<div id="title">' + note.name().substr(0, note.name().length - 4) + '</div>';
+					html += '<div id="title">' + s3.name(note) + '</div>';
 					html += '<div id="buttons">';
 					html += '<a id="swapButton" href="javascript:swapViews();"><img src="swap24.png"/></a>';
 					html += '<a href="javascript:save();"><img src="save24.png"/></a>';
 					html += '<a href="javascript:swapColors();"><img src="bw24.png"/></a>';
-					html += '<a href=".?p=' + password + '&o=v&id=' + id + '"><img src="view24.png"/></a>';
-					html += '<a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + id + '\');"><img src="delete24.png"/></a>';
-					html += '<a href=".?p=' + password + '&id=' + note.parentId() + '"><img src="list24.png"/></a>';
+					html += '<a href=".?p=' + password + '&o=v&n=' + note + '"><img src="view24.png"/></a>';
+					html += '<a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + note + '\');"><img src="delete24.png"/></a>';
+					html += '<a href=".?p=' + password + '&n=' + s3.parent(note) + '"><img src="list24.png"/></a>';
 					html += '</div>';
 					html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
 					html += data;
@@ -322,51 +304,44 @@
 			function save() {
 				showMessage('Saving...');
 				var numSaved = 0;
-				note.save($('#mde')[0].value, function () {
+				s3.save('Notes/' + note + '.mde', $('#mde')[0].value, function () {
 					numSaved += 1;
 					if (numSaved == 2) {
 						showMessage('');
-						$('#title').html(note.name().substr(0, note.name().length - 4));
+						$('#title').html(s3.name(note));
 						savedMde = $('#mde')[0].value;
 						noteChanged = false;
 					}
 				});
-				rfs.get(note.parentId(), function (parentFolder) {
-					parentFolder.child(note.name().substr(0, note.name().length - 4) + '.html', function (noteHtml) {
-						noteHtml.save($('#html')[0].innerHTML, function () {
-							numSaved += 1;
-							if (numSaved == 2) {
-								showMessage('');
-								$('#title').html(note.name().substr(0, note.name().length - 4));
-								savedMde = $('#mde')[0].value;
-								noteChanged = false;
-							}
-						});
+				s3.save('Notes/' + note + '.html', $('#html')[0].innerHTML, function () {
+					numSaved += 1;
+					if (numSaved == 2) {
+						showMessage('');
+						$('#title').html(s3.name(note));
+						savedMde = $('#mde')[0].value;
+						noteChanged = false;
+					}
+				});
+			}
+
+			function deleteNote(note) {
+				showMessage('Deleting...');
+				s3.delete('Notes/' + note + '.mde', function (deleted) {
+					s3.delete('Notes/' + note + '.html', function (deleted) {
+						window.location.replace('.?p=' + password + '&n=' + s3.parent(note));
 					});
 				});
 			}
 
-			function deleteNote(id) {
+			function deleteFolder(note) {
 				showMessage('Deleting...');
-				rfs.get(id, function (noteMde) {
-					rfs.delete(id, function () {
-						rfs.get(noteMde.parentId(), function (parentFolder) {
-							parentFolder.child(noteMde.name().substr(0, noteMde.name().length - 4) + '.html', function (noteHtml) {
-								rfs.delete(noteHtml.id(), function () {
-									window.location.replace('.?p=' + password + '&id=' + noteMde.parentId());
-								});
-							});
-						});
-					});
-				});
-			}
-
-			function deleteFolder(id) {
-				showMessage('Deleting...');
-				rfs.get(id, function (folder) {
-					rfs.delete(id, function () {
-						window.location.replace('.?p=' + password + '&id=' + folder.parentId());
-					});
+				s3.delete('Notes/' + note, function (deleted) {
+					if (deleted) {
+						window.location.replace('.?p=' + password + '&n=' + s3.parent(note));
+					}
+					else {
+						showMessage('Folder is not empty.');
+					}
 				});
 			}
 		</script>
