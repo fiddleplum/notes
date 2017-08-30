@@ -14,11 +14,11 @@ var knownWords = {
 	"vec" : ["&0&#8407;", 1],
 	"hat" : ["&0̂", 1], // there is an invisible character in here to make the combining mark
 	"der" : ["d", 0],
-	"frac" : ["<table style='display: inline-block; margin-left: .1em; margin-right: .1em; vertical-align: middle;' cellspacing=0 cellpadding=0><tr><td style='text-align: center; border-bottom: 1px solid; padding: 0;'>%0</td></tr><tr><td style='text-align: center; pading: 0;'>%1</td></tr></table>", 2],
-	"eq" : ["<span style='float: right;'>%0</span>", 1],
-	"sqrt" : ["<span style='font-size: 1.25em;'>√</span><span style='text-decoration:overline; '>%0</span>", 1],
+	"frac" : ["<span style='display: inline-block; text-align: center; vertical-align: middle;'><span>%0</span><span style='border-top: 1px solid; display: block;'>%1</span></span>", 2],
+	"eqnum" : ["<span style='float: right;'>%0</span>", 1],
+	"sqrt" : ["√<span style='text-decoration:overline; '>%0</span>", 1],
 	"myinf" : ["¤", 0],
-	"indexed" : ["<table style='display: inline-block; vertical-align: middle;' cellspacing=0 cellpadding=0><tr><td style='font-size: .75em; text-align: center; line-height: .5em;'>%2</td></tr><tr><td style='font-size: 1.5em; text-align: center; vertical-align: middle; line-height: .5em;'>%0</td></tr><tr><td style='font-size: .75em; text-align: center; line-height: .5em;'>%1</td></tr></table>", 3],
+	"indexed" : ["<span style='display: inline-block; position: relative; text-align: center; vertical-align: middle; line-height: 1em;'><span style='position: absolute; top: -1.15em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em;'>%2</span><span style=' font-size: 2em; line-height: .75em;'>%0</span><span style='display: block; position: absolute; bottom: -1.05em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em'>%1</span></span>", 3],
 	"paren2" : ["<span style='display: inline-block; transform: scale(1, 3);'>(</span>%0<span style='display: inline-block; transform: scale(1, 3);'>)</span>", 1],
 	"bracket2" : ["<span style='display: inline-block; transform: scale(1, 3);'>[</span>%0<span style='display: inline-block; transform: scale(1, 3);'>]</span>", 1],
 	"half" : ["½", 0],
@@ -74,6 +74,7 @@ var knownWords = {
 	"bra" : ["⟨%0|", 1],
 	"ket" : ["|%0⟩", 1],
 	"braket" : ["⟨%0 | %1⟩", 2],
+	"dagger" : ["†", 0],
 
 	// greek symbols
 	"alpha" : ["<i>&alpha;</i>", 0],
@@ -123,7 +124,31 @@ var knownWords = {
 	"Phi" : ["<i>&Phi;</i>", 0],
 	"Chi" : ["<i>&Chi;</i>", 0],
 	"Psi" : ["<i>&Psi;</i>", 0],
-	"Omega" : ["<i>&Omega;</i>", 0]
+	"Omega" : ["<i>&Omega;</i>", 0],
+	"AlphaOp" : ["&Alpha;", 0],
+	"BetaOp" : ["&Beta;", 0],
+	"GammaOp" : ["&Gamma;", 0],
+	"DeltaOp" : ["&Delta;", 0],
+	"EpsilonOp" : ["&Epsilon;", 0],
+	"ZetaOp" : ["&Zeta;", 0],
+	"EtaOp" : ["&Eta;", 0],
+	"ThetaOp" : ["&Theta;", 0],
+	"IotaOp" : ["&Iota;", 0],
+	"KappaOp" : ["&Kappa;", 0],
+	"LambdaOp" : ["&Lambda;", 0],
+	"MuOp" : ["&Mu;", 0],
+	"NuOp" : ["&Nu;", 0],
+	"XiOp" : ["&Xi;", 0],
+	"OmicronOp" : ["&Omicron;", 0],
+	"PiOp" : ["&Pi;", 0],
+	"RhoOp" : ["&Rho;", 0],
+	"SigmaOp" : ["&Sigma;", 0],
+	"TauOp" : ["&Tau;", 0],
+	"UpsilonOp" : ["&Upsilon;", 0],
+	"PhiOp" : ["&Phi;", 0],
+	"ChiOp" : ["&Chi;", 0],
+	"PsiOp" : ["&Psi;", 0],
+	"OmegaOp" : ["&Omega;", 0]
 }
 
 function passWhiteSpace(content, i) {
@@ -244,13 +269,13 @@ function parseMathContent(content) {
 		else if(c == "^") {
 			i++;
 			var parsedParams = "";
-			[parsedParams, i] = parseParams(content, i, "<sup>%0</sup>", 1);
+			[parsedParams, i] = parseParams(content, i, "<span style='position: relative; top: -.5em; font-size: .7em;'>%0</span>", 1);
 			newContent += parsedParams;
 		}
 		else if(c == "_") {
 			i++;
 			var parsedParams = "";
-			[parsedParams, i] = parseParams(content, i, "<sub>%0</sub>", 1);
+			[parsedParams, i] = parseParams(content, i, "<span style='position: relative; bottom: -.5em; font-size: .7em;'>%0</span>", 1);
 			newContent += parsedParams;
 		}
 		else if(c == " ") {
