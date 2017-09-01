@@ -17,6 +17,7 @@ var knownWords = {
 	"frac" : ["<span style='display: inline-block; text-align: center; vertical-align: middle;'><span>%0</span><span style='border-top: 1px solid; display: block;'>%1</span></span>", 2],
 	"eqnum" : ["<span style='float: right;'>%0</span>", 1],
 	"sqrt" : ["√<span style='text-decoration:overline; '>%0</span>", 1],
+	"inf" : ["∞", 0],
 	"myinf" : ["¤", 0],
 	"indexed" : ["<span style='display: inline-block; position: relative; text-align: center; vertical-align: middle; line-height: 1em;'><span style='position: absolute; top: -1.15em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em;'>%2</span><span style=' font-size: 2em; line-height: .75em;'>%0</span><span style='display: block; position: absolute; bottom: -1.05em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em'>%1</span></span>", 3],
 	"paren2" : ["<span style='display: inline-block; transform: scale(1, 3);'>(</span>%0<span style='display: inline-block; transform: scale(1, 3);'>)</span>", 1],
@@ -24,6 +25,8 @@ var knownWords = {
 	"half" : ["½", 0],
 
 	// functions
+	"if" : ["if", 0],
+	"else" : ["else", 0],
 	"sin" : ["sin(%0)", 1],
 	"sin2" : ["sin<sup>2</sup>(%0)", 1],
 	"cos" : ["cos(%0)", 1],
@@ -34,8 +37,10 @@ var knownWords = {
 	"im" : ["im(%0)", 1],
 
 	// matrices
-	"mat31" : ["<table style='display: inline-block; vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black;'><tr><td>%0</td></tr><tr><td>%1</td></tr><tr><td>%2</td></tr></table>", 3],
-
+	"mat31" : ["<table style='display: inline-block; text-align: center; vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black;'><tr><td>%0</td></tr><tr><td>%1</td></tr><tr><td>%2</td></tr></table>", 3],
+	"mat41" : ["<table style='display: inline-block; text-align: center; vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black;'><tr><td>%0</td></tr><tr><td>%1</td></tr><tr><td>%2</td></tr><tr><td>%3</td></tr></table>", 4],
+	"mat44" : ["<table style='display: inline-block; text-align: center; vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black;'><tr><td>%0</td><td>%1</td><td>%2</td><td>%3</td></tr><tr><td>%4</td><td>%5</td><td>%6</td><td>%7</td></tr><tr><td>%8</td><td>%9</td><td>%10</td><td>%11</td></tr><tr><td>%12</td><td>%13</td><td>%14</td><td>%15</td></tr></table>", 16],
+	
 	// comparisons
 	"ge" : ["≥", 0],
 	"le" : ["≤", 0],
@@ -275,7 +280,7 @@ function parseMathContent(content) {
 		else if(c == "_") {
 			i++;
 			var parsedParams = "";
-			[parsedParams, i] = parseParams(content, i, "<span style='position: relative; bottom: -.5em; font-size: .7em;'>%0</span>", 1);
+			[parsedParams, i] = parseParams(content, i, "<span style='position: relative; bottom: -.25em; font-size: .7em;'>%0</span>", 1);
 			newContent += parsedParams;
 		}
 		else if(c == " ") {
