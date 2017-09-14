@@ -96,7 +96,7 @@ function mdeToHtml (text, cursor) {
 			else if (char == "$") {
 				var charNum2 = newLine.indexOf("$", charNum + 1);
 				if (charNum2 != -1) {
-					newLine2 += parseMathContent(newLine.substr(charNum + 1, charNum2 - (charNum + 1)));
+					newLine2 += "<span class='math'>" + parseMathContent(newLine.substr(charNum + 1, charNum2 - (charNum + 1))) + "</span>";
 					charNum = charNum2;
 				}
 				else {

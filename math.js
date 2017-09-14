@@ -16,7 +16,7 @@ var knownWords = {
 	"der" : ["d", 0],
 	"frac" : ["<span style='display: inline-block; text-align: center; vertical-align: middle;'><span>%0</span><span style='border-top: 1px solid; display: block;'>%1</span></span>", 2],
 	"eqnum" : ["<span style='float: right;'>%0</span>", 1],
-	"sqrt" : ["√<span style='text-decoration:overline; '>%0</span>", 1],
+	"sqrt" : ["√<span style='display: inline-block; border-top: 1px solid black; padding-top: 1px; '>%0</span>", 1],
 	"inf" : ["∞", 0],
 	"myinf" : ["¤", 0],
 	"indexed" : ["<span style='display: inline-block; position: relative; text-align: center; vertical-align: middle; line-height: 1em;'><span style='position: absolute; top: -1.15em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em;'>%2</span><span style=' font-size: 2em; line-height: .75em;'>%0</span><span style='display: block; position: absolute; bottom: -1.05em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em'>%1</span></span>", 3],
@@ -78,7 +78,7 @@ var knownWords = {
 	"hbar" : ["<i>ħ</i>", 0],
 	"bra" : ["⟨%0|", 1],
 	"ket" : ["|%0⟩", 1],
-	"braket" : ["⟨%0 | %1⟩", 2],
+	"braket" : ["⟨%0|%1⟩", 2],
 	"dagger" : ["†", 0],
 
 	// greek symbols
@@ -267,7 +267,7 @@ function parseMathContent(content) {
 				i++;
 			}
 		}
-		else if("0123456789()[]+-*=,.|".includes(c)) {
+		else if("0123456789()[]+-*=,.|><".includes(c)) {
 			newContent += c;
 			i++;
 		}

@@ -6,7 +6,7 @@
 		<meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=0'>
 		<link rel='shortcut icon' href='icon16.png' sizes='16x16'>
 		<link rel='shortcut icon' href='icon.png' sizes='152x152'>
-		<link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet'>
+		<link href='https://fonts.googleapis.com/css?directory=3&family=Lora:400i%7CLora:700%7C700' rel='stylesheet'>
 		<link href='https://fonts.googleapis.com/css?family=Oxygen+Mono' rel='stylesheet'>
 		<link rel='stylesheet' type='text/css' href='style.css'>
 		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
@@ -95,12 +95,12 @@
 			}
 
 			function swapColors() {
-				if ($('#content').css('filter') == 'invert(1)') {
+				if ($('#content').css('filter') == 'invert(1) brightness(0.7)') {
 					$('#content').css('filter', 'invert(0%)');
 					document.cookie = 'bw=n';
 				}
 				else {
-					$('#content').css('filter', 'invert(100%)');
+					$('#content').css('filter', 'invert(100%) brightness(70%)');
 					document.cookie = 'bw=y';
 				}
 			}
@@ -348,7 +348,7 @@
 	</head>
 	<body>
 		<div id='message'></div>
-		<div id='content'></div>
+		<div id='content'>Loading...</div>
 		<div id='clear'></div>
 	</body>
 </html>
