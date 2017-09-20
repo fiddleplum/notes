@@ -267,9 +267,15 @@ function closeQuoteAndCode (line) {
 		code = false;
 		return "</code>\n";
 	}
+	else if (code && inCode) {
+		return "</br>";
+	}
 	if (quote && !inQuote) {
 		quote = false;
 		return "\n</quote>\n";
+	}
+	else if (quote && inQuote) {
+		return "</br>";
 	}
 	return "";
 }
