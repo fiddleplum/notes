@@ -11,7 +11,7 @@ var knownWords = {
 	"perp" : ["&perp;", 0],
 	"norm" : ["|%0|", 1],
 	"parallel" : ["&#x2225;", 0],
-	"vec" : ["&0&#8407;", 1],
+	"vec" : ["<b>&0</b>", 1],
 	"hat" : ["&0̂", 1], // there is an invisible character in here to make the combining mark
 	"der" : ["d", 0],
 	"frac" : ["<span style='display: inline-block; text-align: center; vertical-align: middle;'><span>%0</span><span style='border-top: 1px solid; display: block;'>%1</span></span>", 2],
@@ -19,9 +19,10 @@ var knownWords = {
 	"sqrt" : ["√<span style='display: inline-block; border-top: 1px solid black; padding-top: 1px; '>%0</span>", 1],
 	"inf" : ["∞", 0],
 	"myinf" : ["¤", 0],
-	"indexed" : ["<span style='display: inline-block; position: relative; text-align: center; vertical-align: middle; line-height: 1em;'><span style='position: absolute; top: -1.15em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em;'>%2</span><span style=' font-size: 2em; line-height: .75em;'>%0</span><span style='display: block; position: absolute; bottom: -1.05em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em'>%1</span></span>", 3],
-	"paren2" : ["<span style='display: inline-block; transform: scale(1, 3);'>(</span>%0<span style='display: inline-block; transform: scale(1, 3);'>)</span>", 1],
-	"bracket2" : ["<span style='display: inline-block; transform: scale(1, 3);'>[</span>%0<span style='display: inline-block; transform: scale(1, 3);'>]</span>", 1],
+	"sum" : ["<span style='display: inline-block; position: relative; text-align: center; vertical-align: middle; line-height: 1em;'><span style='position: absolute; top: -1.15em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em;'>%1</span><span style=' font-size: 2em; line-height: .75em;'>&Sigma;</span><span style='display: block; position: absolute; bottom: -1.05em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em'>%0</span></span>", 2],
+	"product" : ["<span style='display: inline-block; position: relative; text-align: center; vertical-align: middle; line-height: 1em;'><span style='position: absolute; top: -1.15em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em;'>%1</span><span style=' font-size: 2em; line-height: .75em;'>&Sigma;</span><span style='display: block; position: absolute; bottom: -1.05em; left:-500%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em'>%0</span></span>", 2],
+	"paren" : ["<span style='display: inline-block; transform: scale(1, calc(%0)); vertical-align: middle;'>(</span>%1<span style='display: inline-block; transform: scale(1, %0); vertical-align: middle;'>)</span>", 2],
+	"bracket" : ["<span style='display: inline-block; transform: scale(1, calc(%0)); vertical-align: middle;'>[</span>%1<span style='display: inline-block; transform: scale(1, %0); vertical-align: middle;'>]</span>", 2],
 	"half" : ["½", 0],
 
 	// functions
@@ -79,81 +80,60 @@ var knownWords = {
 	"bra" : ["⟨%0|", 1],
 	"ket" : ["|%0⟩", 1],
 	"braket" : ["⟨%0|%1⟩", 2],
-	"dagger" : ["†", 0],
+	"dagger" : ["†", 0]
+}
 
+var knownSymbols = {
 	// greek symbols
-	"alpha" : ["<i>&alpha;</i>", 0],
-	"beta" : ["<i>&beta;</i>", 0],
-	"gamma" : ["<i>&gamma;</i>", 0],
-	"delta" : ["<i>&delta;</i>", 0],
-	"epsilon" : ["<i>&epsilon;</i>", 0],
-	"zeta" : ["<i>&zeta;</i>", 0],
-	"eta" : ["<i>&eta;</i>", 0],
-	"theta" : ["<i>&theta;</i>", 0],
-	"iota" : ["<i>&iota;</i>", 0],
-	"kappa" : ["<i>&kappa;</i>", 0],
-	"lambda" : ["<i>&lambda;</i>", 0],
-	"mu" : ["<i>&mu;</i>", 0],
-	"nu" : ["<i>&nu;</i>", 0],
-	"xi" : ["<i>&xi;</i>", 0],
-	"omicron" : ["<i>&omicron;</i>", 0],
-	"pi" : ["<i>&pi;</i>", 0],
-	"rho" : ["<i>&rho;</i>", 0],
-	"sigma" : ["<i>&sigma;</i>", 0],
-	"tau" : ["<i>&tau;</i>", 0],
-	"upsilon" : ["<i>&upsilon;</i>", 0],
-	"phi" : ["<i>&phi;</i>", 0],
-	"chi" : ["<i>&chi;</i>", 0],
-	"psi" : ["<i>&psi;</i>", 0],
-	"omega" : ["<i>&omega;</i>", 0],
-	"Alpha" : ["<i>&Alpha;</i>", 0],
-	"Beta" : ["<i>&Beta;</i>", 0],
-	"Gamma" : ["<i>&Gamma;</i>", 0],
-	"Delta" : ["<i>&Delta;</i>", 0],
-	"Epsilon" : ["<i>&Epsilon;</i>", 0],
-	"Zeta" : ["<i>&Zeta;</i>", 0],
-	"Eta" : ["<i>&Eta;</i>", 0],
-	"Theta" : ["<i>&Theta;</i>", 0],
-	"Iota" : ["<i>&Iota;</i>", 0],
-	"Kappa" : ["<i>&Kappa;</i>", 0],
-	"Lambda" : ["<i>&Lambda;</i>", 0],
-	"Mu" : ["<i>&Mu;</i>", 0],
-	"Nu" : ["<i>&Nu;</i>", 0],
-	"Xi" : ["<i>&Xi;</i>", 0],
-	"Omicron" : ["<i>&Omicron;</i>", 0],
-	"Pi" : ["<i>&Pi;</i>", 0],
-	"Rho" : ["<i>&Rho;</i>", 0],
-	"Sigma" : ["<i>&Sigma;</i>", 0],
-	"Tau" : ["<i>&Tau;</i>", 0],
-	"Upsilon" : ["<i>&Upsilon;</i>", 0],
-	"Phi" : ["<i>&Phi;</i>", 0],
-	"Chi" : ["<i>&Chi;</i>", 0],
-	"Psi" : ["<i>&Psi;</i>", 0],
-	"Omega" : ["<i>&Omega;</i>", 0],
-	"AlphaOp" : ["&Alpha;", 0],
-	"BetaOp" : ["&Beta;", 0],
-	"GammaOp" : ["&Gamma;", 0],
-	"DeltaOp" : ["&Delta;", 0],
-	"EpsilonOp" : ["&Epsilon;", 0],
-	"ZetaOp" : ["&Zeta;", 0],
-	"EtaOp" : ["&Eta;", 0],
-	"ThetaOp" : ["&Theta;", 0],
-	"IotaOp" : ["&Iota;", 0],
-	"KappaOp" : ["&Kappa;", 0],
-	"LambdaOp" : ["&Lambda;", 0],
-	"MuOp" : ["&Mu;", 0],
-	"NuOp" : ["&Nu;", 0],
-	"XiOp" : ["&Xi;", 0],
-	"OmicronOp" : ["&Omicron;", 0],
-	"PiOp" : ["&Pi;", 0],
-	"RhoOp" : ["&Rho;", 0],
-	"SigmaOp" : ["&Sigma;", 0],
-	"TauOp" : ["&Tau;", 0],
-	"UpsilonOp" : ["&Upsilon;", 0],
-	"PhiOp" : ["&Phi;", 0],
-	"ChiOp" : ["&Chi;", 0],
-	"PsiOp" : ["&Psi;", 0],
-	"OmegaOp" : ["&Omega;", 0]
+	"alpha" : "&alpha;",
+	"beta" : "&beta;",
+	"gamma" : "&gamma;",
+	"delta" : "&delta;",
+	"epsilon" : "&epsilon;",
+	"zeta" : "&zeta;",
+	"eta" : "&eta;",
+	"theta" : "&theta;",
+	"iota" : "&iota;",
+	"kappa" : "&kappa;",
+	"lambda" : "&lambda;",
+	"mu" : "&mu;",
+	"nu" : "&nu;",
+	"xi" : "&xi;",
+	"omicron" : "&omicron;",
+	"pi" : "&pi;",
+	"rho" : "&rho;",
+	"sigma" : "&sigma;",
+	"tau" : "&tau;",
+	"upsilon" : "&upsilon;",
+	"phi" : "&phi;",
+	"chi" : "&chi;",
+	"psi" : "&psi;",
+	"omega" : "&omega;",
+	"Alpha" : "&Alpha;",
+	"Beta" : "&Beta;",
+	"Gamma" : "&Gamma;",
+	"Delta" : "&Delta;",
+	"Epsilon" : "&Epsilon;",
+	"Zeta" : "&Zeta;",
+	"Eta" : "&Eta;",
+	"Theta" : "&Theta;",
+	"Iota" : "&Iota;",
+	"Kappa" : "&Kappa;",
+	"Lambda" : "&Lambda;",
+	"Mu" : "&Mu;",
+	"Nu" : "&Nu;",
+	"Xi" : "&Xi;",
+	"Omicron" : "&Omicron;",
+	"Pi" : "&Pi;",
+	"Rho" : "&Rho;",
+	"Sigma" : "&Sigma;",
+	"Tau" : "&Tau;",
+	"Upsilon" : "&Upsilon;",
+	"Phi" : "&Phi;",
+	"Chi" : "&Chi;",
+	"Psi" : "&Psi;",
+	"Omega" : "&Omega;",
+
 }
 
 function passWhiteSpace(content, i) {
@@ -219,7 +199,13 @@ function parseParams(content, i, replacement, numParams) {
 			[param, i] = getParam(content, i);
 		}
 		var paramContent = parseMathContent(param);
-		replacement = replacement.replace("%" + j, paramContent);
+		replacement = replacement.replace(new RegExp("%" + j, "g"), paramContent);
+		if(param.startsWith("/")) {
+			var word = param.substring(1);
+			if(word in knownSymbols) {
+				param = knownSymbols[word];
+			}
+		}
 		replacement = replacement.replace("&" + j, param);
 	}
 	return [replacement, i];
@@ -244,17 +230,23 @@ function parseMathContent(content) {
 				i -= 1;
 				continue;
 			}
-			else if(!(word in knownWords)) {
+			if(word in knownSymbols) {
+				var replacement = knownSymbols[word];
+				newContent += "<i>" + replacement + "</i>";
+				continue;
+			}
+			if(word in knownWords) {
+				var [replacement, numParams] = knownWords[word];
+				var parsedParams = "";
+				[parsedParams, i] = parseParams(content, i, replacement, numParams);
+				newContent += parsedParams;
+				continue;
+			}
+			else {
 				newContent += "/" + word;
 				i += word.length;
 				continue;
 			}
-
-			// Parse the params.
-			var [replacement, numParams] = knownWords[word];
-			var parsedParams = "";
-			[parsedParams, i] = parseParams(content, i, replacement, numParams);
-			newContent += parsedParams;
 		}
 		else if(c == "{") {
 			i++;

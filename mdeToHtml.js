@@ -33,6 +33,7 @@ function mdeToHtml (text, cursor) {
 		numCharsProcessed += line.length + 1;
 
 		lineParsed = false;
+		parseInline = true;
 
 		var newLine = "";
 
@@ -52,6 +53,8 @@ function mdeToHtml (text, cursor) {
 
 		newLine += parseListItem(line);
 
+		newLine += parseMathItem(line);
+
 		if (line == '---') {
 			html += '<hr/>\n';
 			continue;
@@ -62,7 +65,7 @@ function mdeToHtml (text, cursor) {
 			newLine += "<p>" + line + "</p>\n";
 		}
 
-		if (code) { // it's like a pre, so don't inline process.
+		if (!parseInline) { // it's like a pre, so don't inline process.
 			html += newLine;
 			continue;
 		}
@@ -256,6 +259,17 @@ function parseListItem (line) {
 	return "";
 }
 
+// MATH
+
+function parseMathItem (line) {
+	if (line.startsWith("$ ")) {
+		lineParsed = true;
+		parseInline = false;
+		return "<div class='math'>" + parseMathContent(line.substr(2)) + "</div>\n";
+	}
+	return "";
+}
+
 // QUOTES AND CODE
 
 var quote = false;
@@ -290,6 +304,7 @@ function parseQuoteAndCode (line) {
 			newLine += "<code>";
 			code = true;
 		}
+		parseInline = false;
 		newLine += line.substr(2) + "\n";
 	}
 	else if (inQuote) {

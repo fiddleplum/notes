@@ -1,9 +1,12 @@
 @font-face { font-family: "Cambria"; src: url("cambria.ttf"); }
 @font-face { font-family: "CambriaMath"; src: url("cambriamath.ttf"); }
+@font-face { font-family: "Code2000"; src: url("code2000.ttf"); }
+
+.inverted { -webkit-font-smoothing: antialiased; -webkit-text-stroke: .75px; }
 
 :root { --dark: #000000; --medium: #777777; --light: #ffffff; }
-* { box-sizing: border-box; -webkit-font-smoothing: antialiased; -webkit-text-stroke: 0.45px; }
-body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0; font-family: "Cambria", serif; font-size: 14px; letter-spacing: .05em; font-variant-ligatures: none; }
+* { box-sizing: border-box; }
+body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0; font-family: "Code2000", serif; font-size: 14px; letter-spacing: -.05em; }
 
 #message { display: none; position: fixed; width: 100%; padding: 16px; text-align: center; z-index: 2; background: var(--dark); color: var(--light); }
 #content { width: 100%; height: 100%; min-height: 100vh; text-align: center; background-color: var(--light); color: var(--dark); }
@@ -22,7 +25,7 @@ body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0
 #new a { text-decoration: none; color: var(--dark); font-size: 2em; }
 #new a:hover { text-decoration: underline; }
 
-#mde { width: 100%; height: calc(100vh - 130px); vertical-align: top; border: 0; outline: 0; padding: 16px; }
+#mde { width: 100%; height: calc(100vh - 130px); vertical-align: top; border: 0; outline: 0; padding: 16px; font-family: Code2000; font-size: 18px; letter-spacing: -.05em; }
 #mde + #html { display: none; height: calc(100vh - 130px); vertical-align: top; }
 #title + #html { margin: 0 auto; width: auto; max-width: 1024px; }
 
@@ -42,7 +45,7 @@ body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0
 #html a { text-decoration: none; color: blue; }
 #html a:hover { text-decoration: underline; }
 #html hr { border: 0; border-top: 1px solid black; }
-#html .math { font-family: CambriaMath; line-height: 1em; }
+#html .math { font-family: Code2000; }
 
 @media (min-width: 1024px) {
 	body { font-size: 18px; }
