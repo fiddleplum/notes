@@ -71,10 +71,13 @@ var knownWords = {
 	"part" : ["∂", 0],
 	"nabla" : ["∇", 0],
 	"wedge" : ["∧", 0],
-	"int" : ["∫ %0 d%1", 2],
-	"int1" : ["∫<sub>%0</sub> %1 d%2", 3],
-	"int2" : ["∫<sup>%1</sup><sub>%0</sub> %2 d%3", 4],
-
+	"int" : ["∫", 0],
+	"int2" : ["∬", 0],
+	"int3" : ["∭", 0],
+	"intclosed" : ["∮", 0],
+	"int2closed" : ["∯", 0],
+	"int3closed" : ["∰", 0],
+	
 	// quantum
 	"hbar" : ["<i>ħ</i>", 0],
 	"bra" : ["⟨%0|", 1],
@@ -132,8 +135,7 @@ var knownSymbols = {
 	"Phi" : "&Phi;",
 	"Chi" : "&Chi;",
 	"Psi" : "&Psi;",
-	"Omega" : "&Omega;",
-
+	"Omega" : "&Omega;"
 }
 
 function passWhiteSpace(content, i) {

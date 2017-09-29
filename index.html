@@ -291,7 +291,7 @@
 					html += '<a href="javascript:if (confirm(\'Are you sure?\')) deleteNote(\'' + note + '\');"><img src="delete24.png"/></a>';
 					html += '<a href=".?p=' + password + '&n=' + s3.parent(note) + '"><img src="list24.png"/></a>';
 					html += '</div>';
-					html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();">';
+					html += '<textarea id="mde" onchange="updateHtml();" onkeyup="updateHtml();" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
 					html += data;
 					html += '</textarea>';
 					html += '<div id="html">';
