@@ -69,7 +69,7 @@ var knownWords = {
 
 	// calculus
 	"part" : ["∂", 0],
-	"nabla" : ["∇", 0],
+	"grad" : ["<b>∇</b>", 0],
 	"wedge" : ["∧", 0],
 	"int" : ["∫", 0],
 	"int2" : ["∬", 0],
