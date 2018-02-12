@@ -1,17 +1,19 @@
-@font-face { font-family: "Cambria"; src: url("cambria.ttf"); }
-@font-face { font-family: "CambriaMath"; src: url("cambriamath.ttf"); }
-@font-face { font-family: "Code2000"; src: url("code2000.ttf"); }
+@font-face { font-family: "Cambria"; src: url("cambria.ttf"); font-weight: normal; font-style: normal; }
+@font-face { font-family: "Cambria"; src: url("cambriai.ttf"); font-weight: normal; font-style: italic; }
+@font-face { font-family: "Cambria"; src: url("cambriab.ttf"); font-weight: bold; font-style: normal; }
+@font-face { font-family: "Cambria"; src: url("cambriaz.ttf"); font-weight: bold; font-style: italic; }
+@font-face { font-family: "CambriaMath"; src: url("cambria_math.ttf"); }
 
 .inverted { -webkit-font-smoothing: antialiased; -webkit-text-stroke: .75px; }
 
 :root { --dark: #000000; --medium: #777777; --light: #ffffff; }
 * { box-sizing: border-box; }
-body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0; font-family: "Code2000", serif; font-size: 14px; letter-spacing: -.05em; }
+body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0; font-family: Cambria, CambriaMath; font-size: 14px; letter-spacing: 0em; }
 
 #message { display: none; position: fixed; width: 100%; padding: 16px; text-align: center; z-index: 2; background: var(--dark); color: var(--light); }
 #content { width: 100%; height: 100%; min-height: 100vh; text-align: center; background-color: var(--light); color: var(--dark); }
 
-#title { margin: 0 auto; max-width: 1024px; padding: 16px; border-bottom: 1px solid var(--dark); text-align: center; line-height: 1em; font-size: 3em; }
+#title { margin: 0 auto; max-width: 1024px; padding: 16px; border-bottom: 1px solid var(--dark); text-align: center; font-size: 3em; }
 #buttons { margin: 0 auto; max-width: 1024px; border-bottom: 1px solid var(--dark); }
 #buttons a { display: inline-block; margin: 4px; height: 24px; }
 
@@ -25,15 +27,15 @@ body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0
 #new a { text-decoration: none; color: var(--dark); font-size: 2em; }
 #new a:hover { text-decoration: underline; }
 
-#mde { width: 100%; height: calc(100vh - 130px); vertical-align: top; border: 0; outline: 0; padding: 16px; font-family: Code2000; font-size: 18px; letter-spacing: -.05em; }
+#mde { width: 100%; height: calc(100vh - 130px); vertical-align: top; border: 0; outline: 0; padding: 16px; font-family: Cambria, CambriaMath; font-size: 18px; letter-spacing: -.05em; }
 #mde + #html { display: none; height: calc(100vh - 130px); vertical-align: top; }
 #title + #html { margin: 0 auto; width: auto; max-width: 1024px; }
 
 #html { padding: 16px; text-align: left; }
 #html > *:first-child { margin-top: 0; }
-#html h1 { font-size: 2em; font-weight: bold; line-height: 1em; margin: 1em 0 .33em 0; }
-#html h2 { font-size: 1.5em; font-weight: bold; line-height: 1em; margin: 1em 0 .5em 0; }
-#html h3 { font-size: 1.25em; font-weight: bold; line-height: 1em; margin: 1em 0 .67em 0; }
+#html h1 { font-size: 2em; font-weight: bold; margin: 1em 0 .33em 0; }
+#html h2 { font-size: 1.5em; font-weight: bold; margin: 1em 0 .5em 0; }
+#html h3 { font-size: 1.25em; font-weight: bold; margin: 1em 0 .67em 0; }
 #html p { margin: 1em 0 1em 0; }
 #html ul, #html ol { list-style-position: outside; margin: 1em 0 1em 2em; padding: 0; }
 #html ul { list-style-type: disc; }
@@ -45,7 +47,7 @@ body { background-color: var(--light); color: var(--dark); margin: 0; padding: 0
 #html a { text-decoration: none; color: blue; }
 #html a:hover { text-decoration: underline; }
 #html hr { border: 0; border-top: 1px solid black; }
-#html .math { font-family: Code2000; }
+#html .math { font-family: Cambria, CambriaMath; }
 
 @media (min-width: 1024px) {
 	body { font-size: 18px; }

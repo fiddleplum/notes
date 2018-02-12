@@ -6,6 +6,7 @@ var knownWords = {
 	"pow" : ["<sup>%0</sup>", 1],
 	"sub" : ["<sub>%0</sub>", 1],
 	"div" : ["/", 0],
+	"odot" : ["%0&#x307;", 1],
 	"dot" : ["&sdot;", 0],
 	"cross" : ["&times;", 0],
 	"perp" : ["&perp;", 0],
@@ -28,12 +29,9 @@ var knownWords = {
 	// functions
 	"if" : ["if", 0],
 	"else" : ["else", 0],
-	"sin" : ["sin(%0)", 1],
-	"sin2" : ["sin<sup>2</sup>(%0)", 1],
-	"cos" : ["cos(%0)", 1],
-	"cos2" : ["cos<sup>2</sup>(%0)", 1],
-	"tan" : ["tan(%0)", 1],
-	"tan2" : ["tan<sup>2</sup>(%0)", 1],
+	"sin" : ["sin", 0],
+	"cos" : ["cos", 0],
+	"tan" : ["tan", 0],
 	"real" : ["real(%0)", 1],
 	"im" : ["im(%0)", 1],
 
@@ -77,12 +75,14 @@ var knownWords = {
 	"intclosed" : ["∮", 0],
 	"int2closed" : ["∯", 0],
 	"int3closed" : ["∰", 0],
+	"intab" : ["<span style='display: inline-block; position: relative; text-align: center; vertical-align: middle; line-height: 1em;'><span style='position: absolute; top: -1.15em; left:-300%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em;'>%1</span><span style=' font-size: 2em; line-height: .75em;'>∫</span><span style='display: block; position: absolute; bottom: -1.05em; left:-400%; right:-500%; margin:auto; white-space: nowrap; font-size: .75em'>%0</span></span>", 2],
 	
 	// quantum
 	"hbar" : ["<i>ħ</i>", 0],
 	"bra" : ["⟨%0|", 1],
 	"ket" : ["|%0⟩", 1],
 	"braket" : ["⟨%0|%1⟩", 2],
+	"braket2" : ["⟨%0⟩", 1],
 	"dagger" : ["†", 0]
 }
 
